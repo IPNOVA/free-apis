@@ -1,0 +1,59 @@
+openapi: 3.1.0
+info:
+  title: IPSnapshot IP Intelligence API
+  version: "1.0"
+  description: >
+    Free IP lookup. Geolocation, ASN / ISP, and VPN, datacenter and Tor
+    detection for IPv4 and IPv6, from locally hosted data. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://ipsnapshot.com/ip-lookup-api
+    email: hello@ipnova.com
+servers:
+  - url: https://ipsnapshot.com
+paths:
+  /api/ip/{ip}:
+    get:
+      summary: Look up an IP address (or "self")
+      operationId: lookupIp
+      parameters:
+        - name: ip
+          in: path
+          required: true
+          description: IPv4 or IPv6 address, or the literal "self" for the caller's address
+          schema:
+            type: string
+            example: "8.8.8.8"
+      responses:
+        "200":
+          description: Lookup result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  ip: { type: string, example: "8.8.8.8" }
+                  data:
+                    type: object
+                    properties:
+                      ip_version: { type: integer, enum: [4, 6] }
+                      country_code: { type: string, example: "US" }
+                      country: { type: string, example: "United States" }
+                      region: { type: string, example: "California" }
+                      city: { type: string, example: "Mountain View" }
+                      continent: { type: string, example: "North America" }
+                      asn: { type: integer, example: 15169 }
+                      isp: { type: string, example: "Google LLC" }
+                      is_vpn: { type: boolean }
+                      is_tor: { type: boolean }
+                      is_datacenter: { type: boolean }
+                      risk_level: { type: string, example: "Clean" }
+                      risk_score: { type: integer, minimum: 0, maximum: 100 }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400":
+          description: Not a valid IPv4 or IPv6 address
+        "429":
+          description: Rate limit exceeded (30/minute or 500/day per IP)
