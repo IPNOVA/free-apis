@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: PostalCodeCheck Postal Code API
+  version: "1.0"
+  description: >
+    Free postal / ZIP / postcode lookup: city, region and coordinates for
+    887,000+ codes across 95 countries (GeoNames, CC BY 4.0). No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://postalcodecheck.com/postal-code-api
+    email: hello@ipnova.com
+servers:
+  - url: https://postalcodecheck.com
+paths:
+  /api/postal/{cc}/{code}:
+    get:
+      summary: Look up a postal code
+      operationId: lookupPostal
+      parameters:
+        - name: cc
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[A-Za-z]{2}$", example: "US" }
+        - name: code
+          in: path
+          required: true
+          description: Postal code; case, spaces and hyphens are ignored
+          schema: { type: string, example: "90210" }
+      responses:
+        "200":
+          description: Code found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  country: { type: string, example: "US" }
+                  country_name: { type: string, example: "United States" }
+                  code: { type: string, example: "90210" }
+                  places:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        place: { type: string, example: "Beverly Hills" }
+                        admin1: { type: string, example: "California" }
+                        admin2: { type: string, example: "Los Angeles" }
+                        lat: { type: string, example: "34.0901" }
+                        lng: { type: string, example: "-118.4065" }
+                  url: { type: string, format: uri }
+                  source: { type: string }
+        "400": { description: Country code is not two letters }
+        "404": { description: Country not covered or code not found }
+        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
+  /api/countries:
+    get:
+      summary: List supported countries
+      operationId: listCountries
+      responses:
+        "200":
+          description: Countries with code counts and format patterns
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        country: { type: string, example: "DE" }
+                        name: { type: string, example: "Germany" }
+                        codes: { type: integer, example: 16481 }
+                        format: { type: string, example: "NNNNN", description: "N = digit, A = letter" }
+                  source: { type: string }
+        "429": { description: Rate limit exceeded }
