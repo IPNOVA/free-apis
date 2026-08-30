@@ -1,0 +1,57 @@
+openapi: 3.1.0
+info:
+  title: AreaCodeCheck Phone / Area Code API
+  version: "1.0"
+  description: >
+    Free phone prefix analysis: country and dialling code for any number, plus
+    area code, location and timezone for North American (+1) numbers. Numbers
+    are never stored. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://areacodecheck.com/phone-api
+    email: hello@ipnova.com
+servers:
+  - url: https://areacodecheck.com
+paths:
+  /api/phone/{number}:
+    get:
+      summary: Analyze a phone number's prefix
+      operationId: analyzePhone
+      parameters:
+        - name: number
+          in: path
+          required: true
+          description: 3 to 15 digits, optionally with + or 00 prefix (URL-encode + as %2B)
+          schema:
+            type: string
+            example: "+14155552671"
+      responses:
+        "200":
+          description: Prefix analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      input: { type: string, example: "+14155552671" }
+                      e164: { type: string, example: "+14155552671" }
+                      country_code: { type: string, example: "1" }
+                      country: { type: string, example: "United States, Canada & NANP territories" }
+                      region_iso: { type: string, example: "US" }
+                      shared_note: { type: string }
+                      area_code: { type: string, example: "415" }
+                      area_location: { type: string, example: "California" }
+                      area_country: { type: string, example: "United States" }
+                      timezone: { type: string, example: "America/Los_Angeles" }
+                      nanp_valid: { type: boolean }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400":
+          description: Fewer than 3 or more than 15 digits
+        "429":
+          description: Rate limit exceeded (30/minute or 500/day per IP)
