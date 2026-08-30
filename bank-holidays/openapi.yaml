@@ -1,0 +1,122 @@
+openapi: 3.1.0
+info:
+  title: BankHolidayCheck Holidays API
+  version: "1.0"
+  description: >
+    Free bank and public holiday API for 246 countries: year calendars, the
+    next upcoming holiday, and per-date checks with a banks-closed verdict.
+    Names available in en, es, fr, de, pt. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://bankholidaycheck.com/holiday-api
+    email: hello@ipnova.com
+servers:
+  - url: https://bankholidaycheck.com
+components:
+  parameters:
+    cc:
+      name: cc
+      in: path
+      required: true
+      description: ISO 3166-1 alpha-2 country code
+      schema: { type: string, pattern: "^[A-Za-z]{2}$", example: "GB" }
+    lang:
+      name: lang
+      in: query
+      required: false
+      description: Language for holiday names
+      schema: { type: string, enum: [en, es, fr, de, pt], default: en }
+paths:
+  /api/holidays/{cc}/{year}:
+    get:
+      summary: Full holiday calendar for a country and year
+      operationId: holidaysYear
+      parameters:
+        - $ref: "#/components/parameters/cc"
+        - name: year
+          in: path
+          required: true
+          schema: { type: integer, example: 2026 }
+        - $ref: "#/components/parameters/lang"
+      responses:
+        "200":
+          description: List of holidays
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  country: { type: string }
+                  country_code: { type: string }
+                  year: { type: integer, example: 2026 }
+                  count: { type: integer, example: 15 }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date: { type: string, format: date, example: "2026-01-01" }
+                        name: { type: string, example: "New Year's Day" }
+                        weekday: { type: string, example: "Thursday" }
+        "404": { description: Country or year not in the dataset }
+        "429": { description: Rate limit exceeded }
+  /api/holidays/next/{cc}:
+    get:
+      summary: The next upcoming holiday for a country
+      operationId: holidaysNext
+      parameters:
+        - $ref: "#/components/parameters/cc"
+        - $ref: "#/components/parameters/lang"
+      responses:
+        "200":
+          description: Next holiday with a days-until counter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  country: { type: string }
+                  country_code: { type: string }
+                  data:
+                    type: object
+                    properties:
+                      date: { type: string, format: date, example: "2026-08-31" }
+                      name: { type: string, example: "Late Summer Bank Holiday" }
+                      days: { type: integer, example: 1 }
+        "404": { description: Country not in the dataset }
+        "429": { description: Rate limit exceeded }
+  /api/holidays/check/{cc}/{date}:
+    get:
+      summary: Is a specific date a holiday or weekend?
+      operationId: holidaysCheck
+      parameters:
+        - $ref: "#/components/parameters/cc"
+        - name: date
+          in: path
+          required: true
+          schema: { type: string, format: date, example: "2026-12-25" }
+        - $ref: "#/components/parameters/lang"
+      responses:
+        "200":
+          description: Verdict for the date, including weekends
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  country: { type: string, example: "Germany" }
+                  country_code: { type: string, example: "DE" }
+                  date: { type: string, format: date, example: "2026-10-03" }
+                  data:
+                    type: object
+                    properties:
+                      is_holiday: { type: boolean }
+                      holiday_name: { type: string, example: "German Unity Day" }
+                      is_weekend: { type: boolean }
+                      weekday: { type: string, example: "Saturday" }
+                      banks_closed: { type: boolean }
+        "400": { description: Malformed date }
+        "429": { description: Rate limit exceeded }
