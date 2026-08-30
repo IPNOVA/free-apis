@@ -1,0 +1,48 @@
+openapi: 3.1.0
+info:
+  title: MacVendorCheck MAC Vendor Lookup API
+  version: "1.0"
+  description: >
+    Free MAC address / OUI vendor lookup from a locally hosted copy of the
+    IEEE MA-L, MA-M and MA-S registries. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://macvendorcheck.com/mac-address-lookup-api
+    email: hello@ipnova.com
+servers:
+  - url: https://macvendorcheck.com
+paths:
+  /api/mac/{mac}:
+    get:
+      summary: Look up the vendor of a MAC address or OUI prefix
+      operationId: lookupMac
+      parameters:
+        - name: mac
+          in: path
+          required: true
+          description: Full MAC or OUI prefix in any common format (colons, hyphens, dots or bare hex)
+          schema:
+            type: string
+            example: "00:1A:2B:3C:4D:5E"
+      responses:
+        "200":
+          description: Vendor found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  mac: { type: string, example: "00:1A:2B:3C:4D:5E" }
+                  oui: { type: string, example: "001A2B" }
+                  vendor: { type: string, example: "Ayecom Technology Co., Ltd." }
+                  registry: { type: string, enum: [MA-L, MA-M, MA-S], example: "MA-L" }
+                  country: { type: string, example: "TW" }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+        "400":
+          description: Fewer than 6 hex digits provided
+        "404":
+          description: Prefix not registered with the IEEE
+        "429":
+          description: Rate limit exceeded (30/minute or 500/day per IP)
