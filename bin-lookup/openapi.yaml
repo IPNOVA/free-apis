@@ -1,0 +1,60 @@
+openapi: 3.1.0
+info:
+  title: CardBinCheck BIN Lookup API
+  version: "1.0"
+  description: >
+    Free BIN / IIN lookup. Identify the card network, funding type, issuer and
+    country behind the first 6 to 8 digits of a payment card. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://cardbincheck.com/bin-lookup-api
+    email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://cardbincheck.com/bin-lookup-api
+servers:
+  - url: https://cardbincheck.com
+paths:
+  /api/bin/{bin}:
+    get:
+      summary: Look up a card BIN / IIN
+      operationId: lookupBin
+      parameters:
+        - name: bin
+          in: path
+          required: true
+          description: The first 6 to 8 digits of a payment card
+          schema:
+            type: string
+            pattern: "^[0-9]{6,8}$"
+            example: "440066"
+      responses:
+        "200":
+          description: BIN found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      bin: { type: string, example: "440066" }
+                      scheme: { type: string, example: "Visa" }
+                      funding: { type: string, example: "Credit" }
+                      segment: { type: string, example: "Signature" }
+                      issuer: { type: string, example: "Unknown" }
+                      country_code: { type: string, example: "US" }
+                      country_name: { type: string, example: "United States" }
+                      bank_url: { type: string }
+                      bank_phone: { type: string }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400":
+          description: Input is not 6 to 8 digits
+        "404":
+          description: BIN not in the public dataset
+        "429":
+          description: Rate limit exceeded (30/minute or 500/day per IP)
