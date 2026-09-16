@@ -4,15 +4,17 @@ Identify the network, issuer, country and card type behind the first 6 to 8 digi
 
 **Base URL** `https://cardbincheck.com` · **Live docs** [cardbincheck.com/bin-lookup-api](https://cardbincheck.com/bin-lookup-api) · [OpenAPI spec](./openapi.yaml)
 
-## Endpoint
+## Endpoints
 
 ```
-GET /api/bin/{bin}
+GET /api/bin/{bin}          # look up one BIN
+POST /api/bin-batch         # look up up to 100 BINs in one call
 ```
 
 | Parameter | Type | Description |
 |---|---|---|
 | `bin` | path, required | 6 to 8 digits, the start of a card number |
+| `bins` | body, required (batch only) | JSON array of 1 to 100 BIN strings, each 6 to 8 digits: `{"bins": ["424242", "510510"]}` |
 
 ## Example
 
@@ -40,6 +42,50 @@ curl https://cardbincheck.com/api/bin/440066
 }
 ```
 
+### Batch
+
+```bash
+curl -X POST https://cardbincheck.com/api/bin-batch \
+  -H "Content-Type: application/json" \
+  -d '{"bins": ["440066", "510510"]}'
+```
+
+```json
+{
+  "success": true,
+  "count": 2,
+  "found": 2,
+  "results": [
+    {
+      "found": true,
+      "bin": "440066",
+      "scheme": "Visa",
+      "funding": "Credit",
+      "segment": "Signature",
+      "issuer": "Unknown",
+      "country_code": "US",
+      "country_name": "United States",
+      "bank_url": "",
+      "bank_phone": ""
+    },
+    {
+      "found": true,
+      "bin": "510510",
+      "scheme": "Mastercard",
+      "funding": "Credit",
+      "segment": "Unknown",
+      "issuer": "Bank Of Hawaii",
+      "country_code": "US",
+      "country_name": "United States",
+      "bank_url": "www.boh.com/personal/",
+      "bank_phone": "643-3888"
+    }
+  ],
+  "attribution": "Data by CardBinCheck.com - free BIN lookup API",
+  "docs": "https://cardbincheck.com/bin-lookup-api"
+}
+```
+
 ### JavaScript
 
 ```js
@@ -61,12 +107,15 @@ print(f"{data['scheme']} {data['funding']} card from {data['country_name']}")
 
 | Status | Meaning |
 |---|---|
-| `400` | Input is not 6 to 8 digits |
+| `400` | Input is not 6 to 8 digits; or, on the batch endpoint, `bins` missing/empty/not an array, or more than 100 items |
 | `404` | BIN not present in the public dataset |
+| `405` | `GET` on `/api/bin-batch`, or a non-`POST`/`GET` method on either endpoint |
+| `413` | Batch request body over 64 KB |
 | `429` | Rate limit hit: 30/minute or 500/day per IP |
 
 ## Notes
 
 - BIN data identifies card *ranges*, never an individual card or cardholder. It is the same public industry data merchants use for routing and risk.
 - Fields the dataset does not disclose come back as `"Unknown"` or an empty string, never invented.
-- Responses are cacheable for 24 hours (`Cache-Control: public, max-age=86400`).
+- Responses are cacheable for 24 hours (`Cache-Control: public, max-age=86400`); batch responses are sent `no-store` since each is call-specific.
+- A batch call counts against the daily limit as `ceil(n / 10)` requests (based on the size of the submitted `bins` array), so a 100-BIN batch costs 10, not 100. Duplicate BINs within one batch are looked up once; the extra occurrences are dropped, so `results` and `count` can be shorter than the input array.

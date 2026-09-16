@@ -3,13 +3,17 @@ info:
   title: BankHolidayCheck Holidays API
   version: "1.0"
   description: >
-    Free bank and public holiday API for 246 countries: year calendars, the
-    next upcoming holiday, and per-date checks with a banks-closed verdict.
-    Names available in en, es, fr, de, pt. No key required.
+    Free bank and public holiday API for 150+ countries: year calendars, the
+    next upcoming holiday, per-date checks with a banks-closed verdict, and a
+    business-days calculator. Names available in en, es, fr, de, pt, it, nl,
+    pl. No key required.
   contact:
     name: IPNOVA SYSTEMS LTD
     url: https://bankholidaycheck.com/holiday-api
     email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://bankholidaycheck.com/holiday-api
 servers:
   - url: https://bankholidaycheck.com
 components:
@@ -25,7 +29,7 @@ components:
       in: query
       required: false
       description: Language for holiday names
-      schema: { type: string, enum: [en, es, fr, de, pt], default: en }
+      schema: { type: string, enum: [en, es, fr, de, pt, it, nl, pl], default: en }
 paths:
   /api/holidays/{cc}/{year}:
     get:
@@ -59,8 +63,11 @@ paths:
                         date: { type: string, format: date, example: "2026-01-01" }
                         name: { type: string, example: "New Year's Day" }
                         weekday: { type: string, example: "Thursday" }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
         "404": { description: Country or year not in the dataset }
-        "429": { description: Rate limit exceeded }
+        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
   /api/holidays/next/{cc}:
     get:
       summary: The next upcoming holiday for a country
@@ -85,8 +92,11 @@ paths:
                       date: { type: string, format: date, example: "2026-08-31" }
                       name: { type: string, example: "Late Summer Bank Holiday" }
                       days: { type: integer, example: 1 }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
         "404": { description: Country not in the dataset }
-        "429": { description: Rate limit exceeded }
+        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
   /api/holidays/check/{cc}/{date}:
     get:
       summary: Is a specific date a holiday or weekend?
@@ -118,5 +128,56 @@ paths:
                       is_weekend: { type: boolean }
                       weekday: { type: string, example: "Saturday" }
                       banks_closed: { type: boolean }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
         "400": { description: Malformed date }
-        "429": { description: Rate limit exceeded }
+        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
+  /api/business-days/{cc}/{from}/{to}:
+    get:
+      summary: Business days between two dates, holidays excluded
+      operationId: businessDays
+      parameters:
+        - $ref: "#/components/parameters/cc"
+        - name: from
+          in: path
+          required: true
+          schema: { type: string, format: date, example: "2026-01-01" }
+        - name: to
+          in: path
+          required: true
+          schema: { type: string, format: date, example: "2026-03-31" }
+        - $ref: "#/components/parameters/lang"
+      responses:
+        "200":
+          description: Business-day count between from and to, inclusive, with holidays skipped
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  country: { type: string, example: "Germany" }
+                  country_code: { type: string, example: "DE" }
+                  from: { type: string, format: date, example: "2026-01-01" }
+                  to: { type: string, format: date, example: "2026-03-31" }
+                  inclusive: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      business_days: { type: integer, example: 63 }
+                      total_days: { type: integer, example: 90 }
+                      weekend_days: { type: integer, example: 26 }
+                      holidays_skipped:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            date: { type: string, format: date, example: "2026-01-01" }
+                            name: { type: string, example: "New Year's Day" }
+                      weekend: { type: string, example: "Sat-Sun weekend" }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400": { description: "Invalid dates, or the range is over 5 years" }
+        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }

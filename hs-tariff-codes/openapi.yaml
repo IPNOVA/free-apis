@@ -55,16 +55,16 @@ paths:
                     items:
                       type: object
                       properties:
-                        hts: { type: string, example: "85171300" }
-                        description: { type: string, example: "Smartphones" }
-                        context: { type: string, example: "" }
-                        duty_general: { type: string, example: "Free" }
-                        duty_special: { type: string, example: "" }
+                        hts: { type: string, example: "64041120" }
+                        description: { type: string, example: "Having uppers of which over 50 percent of the external surface area (including any leather accessories or reinforcements such as those mentioned in note 4(a) to this chapter) is leather" }
+                        context: { type: string, example: "Sports footwear; tennis shoes, basketball shoes, gym shoes, training shoes and the like" }
+                        duty_general: { type: string, example: "10.5%" }
+                        duty_special: { type: string, example: "Free (AU,BH, CL,CO,D,E,IL, JO,KR,MA, OM,P,PA,PE, R,S,SG)" }
                         duty_col2: { type: string, example: "35%" }
                         units:
                           type: array
                           items: { type: string }
-                          example: ["No."]
+                          example: ["prs."]
                         statistical:
                           type: array
                           items:
@@ -79,7 +79,7 @@ paths:
                       properties:
                         cn_code: { type: string, example: "85171300" }
                         description: { type: string, example: "Smartphones" }
-                        taric_url: { type: string, format: uri }
+                        taric_url: { type: string, format: uri, example: "https://ec.europa.eu/taxation_customs/dds2/taric/measures.jsp?Lang=en&Taric=8517130000" }
                   uk_commodities:
                     type: array
                     items:
@@ -87,10 +87,10 @@ paths:
                       properties:
                         commodity_code: { type: string, example: "8517130000" }
                         description: { type: string, example: "Smartphones" }
-                  page: { type: string, format: uri }
-                  disclaimer: { type: string }
-                  attribution: { type: string }
-                  docs: { type: string, format: uri }
+                  page: { type: string, format: uri, example: "https://tariffcodecheck.com/hs-code/851713" }
+                  disclaimer: { type: string, example: "Reference data from official schedules; not a binding classification ruling." }
+                  attribution: { type: string, example: "Data: USITC Harmonized Tariff Schedule (public domain) + UK Integrated Online Tariff (OGL v3.0) via TariffCodeCheck.com. Reference only, not a customs ruling." }
+                  docs: { type: string, format: uri, example: "https://tariffcodecheck.com/hs-code-api" }
         "404":
           description: Code is not a resolvable HS6 subheading
           content:
@@ -102,17 +102,14 @@ paths:
                   error: { type: string, example: "Unknown HS code. Provide 6 digits: /api/hs/851713 (longer codes are truncated to their HS6 parent)." }
                   docs: { type: string, format: uri }
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute or 500 per day per IP.
-            The per-minute response sets a Retry-After header; both include an
-            upgrade link to api.ipnova.com.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   success: { type: boolean, example: false }
-                  error: { type: string, example: "Too many requests. Please slow down and try again in a minute. An IPNOVA API key raises the limit." }
+                  error: { type: string, example: "Too many requests. Please slow down and try again in a minute. Higher-limit plans open shortly at api.ipnova.com." }
                   upgrade: { type: string, format: uri, example: "https://api.ipnova.com/" }
   /api/search:
     get:
@@ -159,14 +156,13 @@ paths:
                   error: { type: string, example: "Provide a query: /api/search?q=laptop" }
                   docs: { type: string, format: uri }
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute or 500 per day per IP.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   success: { type: boolean, example: false }
-                  error: { type: string, example: "Daily API limit reached (500/day per IP). Resets at midnight UTC. An IPNOVA API key raises the limit." }
+                  error: { type: string, example: "Daily API limit reached (500/day per IP). Resets at midnight UTC. Higher-limit plans open shortly at api.ipnova.com." }
                   docs: { type: string, format: uri }
                   upgrade: { type: string, format: uri, example: "https://api.ipnova.com/" }

@@ -58,3 +58,58 @@ paths:
           description: BIN not in the public dataset
         "429":
           description: Rate limit exceeded (30/minute or 500/day per IP)
+  /api/bin-batch:
+    post:
+      summary: Look up up to 100 BINs in one call
+      operationId: lookupBinBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bins]
+              properties:
+                bins:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: { type: string, pattern: "^[0-9]{6,8}$" }
+                  example: ["424242", "510510"]
+      responses:
+        "200":
+          description: Batch results, one entry per input item (duplicates collapsed)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  count: { type: integer, example: 2 }
+                  found: { type: integer, example: 2 }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        found: { type: boolean }
+                        bin: { type: string, example: "440066" }
+                        error: { type: string, description: "Present instead of the lookup fields when found is false" }
+                        scheme: { type: string, example: "Visa" }
+                        funding: { type: string, example: "Credit" }
+                        segment: { type: string, example: "Signature" }
+                        issuer: { type: string, example: "Unknown" }
+                        country_code: { type: string, example: "US" }
+                        country_name: { type: string, example: "United States" }
+                        bank_url: { type: string }
+                        bank_phone: { type: string }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400":
+          description: "bins missing, empty, not an array, or over 100 items"
+        "405":
+          description: Method is not POST
+        "413":
+          description: Request body over 64 KB
+        "429":
+          description: Rate limit exceeded (30/minute or 500/day per IP), batch calls cost ceil(n/10) requests

@@ -70,3 +70,4 @@ if j["disposable"] == "confirmed":
 - `mx_active` reflects our own rolling DNS sampling (MX, with an A/AAAA implicit-MX fallback), not any upstream list; `null` means the domain has not been sampled yet.
 - Responses are sent with `Cache-Control: no-store`. Nothing about the input is logged or cached server-side.
 - For checking many addresses at once, use the browser-side [bulk checker](https://emaildomaincheck.com/bulk-email-checker) or download the [full list](https://emaildomaincheck.com/disposable-email-domains) (rebuilt daily, free for commercial use) instead of looping this endpoint.
+- About 76,800 domains tracked across the four lists, rebuilt daily.

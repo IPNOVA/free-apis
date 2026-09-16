@@ -1,4 +1,4 @@
-# Airport Code & Routes API
+# Airport Codes and Routes API
 
 Look up any IATA or ICAO airport code, list its direct-flight destinations, find the nonstop or best one-stop connection between two airports, search by name or city, and list countries by airport count. Airport records are served from a locally hosted OurAirports dataset; route data is adapted from Wikipedia and refreshed monthly on our own servers, so nothing is queried from third parties at lookup time.
 

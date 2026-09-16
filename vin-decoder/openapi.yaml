@@ -63,7 +63,53 @@ paths:
                   docs: { type: string, format: uri, example: "https://vindecodercheck.com/vin-api" }
         "422":
           description: VIN is not 11 to 17 characters, or contains I, O or Q
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: boolean, example: true }
+                  message: { type: string, example: "Provide a VIN (17 characters; partial VINs of 11+ accepted)." }
+              examples:
+                tooShort:
+                  summary: VIN outside the 11 to 17 character range
+                  value:
+                    error: true
+                    message: "Provide a VIN (17 characters; partial VINs of 11+ accepted)."
+                bannedLetters:
+                  summary: VIN contains I, O or Q
+                  value:
+                    error: true
+                    message: "VINs never contain the letters I, O or Q."
         "429":
           description: Rate limit exceeded (20/minute or 300/day per IP)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: boolean, example: true }
+                  message: { type: string, example: "Rate limit exceeded: 20 requests per minute. Higher-limit plans open shortly at api.ipnova.com." }
+                  upgrade: { type: string, format: uri, example: "https://api.ipnova.com/" }
+              examples:
+                perMinute:
+                  summary: Per-minute cap hit
+                  value:
+                    error: true
+                    message: "Rate limit exceeded: 20 requests per minute. Higher-limit plans open shortly at api.ipnova.com."
+                    upgrade: "https://api.ipnova.com/"
+                perDay:
+                  summary: Daily cap hit
+                  value:
+                    error: true
+                    message: "Daily limit reached (300/day). Higher-limit plans open shortly at api.ipnova.com."
+                    upgrade: "https://api.ipnova.com/"
         "502":
           description: Upstream vPIC decoder unavailable, try again shortly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: { type: boolean, example: true }
+                  message: { type: string, example: "Upstream decoder unavailable, try again shortly." }

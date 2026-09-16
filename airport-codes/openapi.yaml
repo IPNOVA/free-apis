@@ -10,6 +10,9 @@ info:
     name: IPNOVA SYSTEMS LTD
     url: https://airportcodecheck.com/airport-api
     email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://airportcodecheck.com/airport-api
 servers:
   - url: https://airportcodecheck.com
 components:
@@ -63,9 +66,7 @@ paths:
                 properties:
                   error: { type: string, example: "No airport found for \"ZZZZZ\"." }
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute, or 500 requests per
-            day, per IP.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
   /api/routes/{code}:
     get:
       summary: List direct-flight destinations from an airport
@@ -103,9 +104,7 @@ paths:
         "404":
           description: No airport found for that code
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute, or 500 requests per
-            day, per IP.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
   /api/connections/{from}/{to}:
     get:
       summary: Nonstop route or best one-stop options between two airports
@@ -177,9 +176,7 @@ paths:
                 properties:
                   error: { type: string, example: "Unknown origin or destination airport code." }
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute, or 500 requests per
-            day, per IP.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
   /api/search:
     get:
       summary: Search airports by name, city or IATA code
@@ -221,9 +218,7 @@ paths:
                 properties:
                   error: { type: string, example: "Provide at least 2 characters in q." }
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute, or 500 requests per
-            day, per IP.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
   /api/countries:
     get:
       summary: Countries with airport counts
@@ -247,6 +242,4 @@ paths:
                         iata_airports: { type: integer, example: 12 }
                   source: { type: string }
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute, or 500 requests per
-            day, per IP.
+          description: Rate limit exceeded (30/minute or 500/day per IP)

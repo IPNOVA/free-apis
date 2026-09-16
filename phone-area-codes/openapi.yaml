@@ -10,6 +10,9 @@ info:
     name: IPNOVA SYSTEMS LTD
     url: https://areacodecheck.com/phone-api
     email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://areacodecheck.com/phone-api
 servers:
   - url: https://areacodecheck.com
 paths:
@@ -21,7 +24,7 @@ paths:
         - name: number
           in: path
           required: true
-          description: 3 to 15 digits, optionally with + or 00 prefix (URL-encode + as %2B)
+          description: "3 to 15 digits, optionally with + or 00 prefix; send + as-is or URL-encoded as %2B, both are accepted"
           schema:
             type: string
             example: "+14155552671"

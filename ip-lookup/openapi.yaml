@@ -9,6 +9,9 @@ info:
     name: IPNOVA SYSTEMS LTD
     url: https://ipsnapshot.com/ip-lookup-api
     email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://ipsnapshot.com/ip-lookup-api
 servers:
   - url: https://ipsnapshot.com
 paths:

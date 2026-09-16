@@ -12,12 +12,12 @@ GET /api/phone/{number}
 
 | Parameter | Type | Description |
 |---|---|---|
-| `number` | path, required | 3 to 15 digits, with or without `+` / `00` international prefix. URL-encode the `+` as `%2B` |
+| `number` | path, required | 3 to 15 digits, with or without `+` / `00` international prefix. Send the `+` as-is or URL-encoded as `%2B`, both are accepted |
 
 ## Example
 
 ```bash
-curl "https://areacodecheck.com/api/phone/%2B14155552671"
+curl "https://areacodecheck.com/api/phone/+14155552671"
 ```
 
 ```json
@@ -45,7 +45,7 @@ curl "https://areacodecheck.com/api/phone/%2B14155552671"
 ### JavaScript
 
 ```js
-const res = await fetch('https://areacodecheck.com/api/phone/%2B35724656406');
+const res = await fetch('https://areacodecheck.com/api/phone/+35724656406');
 const { data } = await res.json();
 console.log(`${data.country} (+${data.country_code})`);
 ```
@@ -71,3 +71,4 @@ print(j["data"]["country"])
 - This is prefix analysis, not line verification: it identifies where a number belongs, never whether it is active or who owns it.
 - Area-code detail (`area_code`, `area_location`, `timezone`) applies to NANP (+1) numbers; other countries return the country-level fields.
 - Privacy by design: the number is analyzed in memory and discarded; only anonymous rate-limit counters exist.
+- Responses are sent with `Cache-Control: no-store`, consistent with the no-storage design; nothing is cached.

@@ -71,3 +71,4 @@ print(j["places"][0]["place"])
 - One code can cover several places (common in rural areas); `places` lists them all, primary first.
 - UK coverage is at outward-code level (`SW1A`), which is what the open dataset provides.
 - Data: [GeoNames postal dataset](https://www.geonames.org) under CC BY 4.0; the `source` field carries the attribution.
+- Responses are cacheable for 24 hours (`Cache-Control: public, max-age=86400`).

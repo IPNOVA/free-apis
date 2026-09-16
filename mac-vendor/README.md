@@ -12,7 +12,7 @@ GET /api/mac/{mac}
 
 | Parameter | Type | Description |
 |---|---|---|
-| `mac` | path, required | A full MAC address or an OUI prefix, any common format: `00:1A:2B:3C:4D:5E`, `00-1A-2B`, `001A2B` |
+| `mac` | path, required | A full MAC address or an OUI prefix, any common format: `00:1A:2B:3C:4D:5E`, `00-1A-2B`, `001a.2b3c.4d5e`, `001A2B` |
 
 ## Example
 
@@ -55,11 +55,12 @@ print(j["vendor"], j["registry"])
 | Status | Meaning |
 |---|---|
 | `400` | Fewer than 6 hex digits provided |
-| `404` | Prefix not registered with the IEEE |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| `429` | Rate limit hit: 30/minute or 1,000/day per IP |
 
 ## Notes
 
-- Separators and case are ignored; `00:1a:2b`, `00-1A-2B` and `001A2B` are the same query.
+- Separators and case are ignored; `00:1a:2b`, `00-1A-2B`, `001a.2b3c.4d5e` and `001A2B` are the same query.
 - Longer prefixes are matched most-specific-first (MA-S 36-bit, then MA-M 28-bit, then MA-L 24-bit), matching how the IEEE allocates blocks.
-- Randomized/private MAC addresses (second hex digit 2, 6, A or E) are intentionally unregistered and will return 404.
+- An unregistered prefix is not a `404`: the API answers `200` with `success: false` and an explanatory `error`, for example `curl https://macvendorcheck.com/api/mac/020000` returns `{"success":false,"mac":"02:00:00","error":"No vendor found for this MAC in the IEEE registry."}`. Randomized/private MAC addresses (second hex digit 2, 6, A or E) are intentionally unregistered and come back this way.
+- This API allows 1,000 requests a day, higher than the 500/day default on the other APIs in this repository.
+- No `Cache-Control` header is sent (`cf-cache-status: DYNAMIC`); treat responses as uncached and poll only as often as you need to.

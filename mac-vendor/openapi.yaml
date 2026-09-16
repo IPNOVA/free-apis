@@ -9,6 +9,9 @@ info:
     name: IPNOVA SYSTEMS LTD
     url: https://macvendorcheck.com/mac-address-lookup-api
     email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://macvendorcheck.com/mac-address-lookup-api
 servers:
   - url: https://macvendorcheck.com
 paths:
@@ -20,13 +23,17 @@ paths:
         - name: mac
           in: path
           required: true
-          description: Full MAC or OUI prefix in any common format (colons, hyphens, dots or bare hex)
+          description: Full MAC or OUI prefix in any common format (colons, hyphens, dots, e.g. "001a.2b3c.4d5e", or bare hex)
           schema:
             type: string
             example: "00:1A:2B:3C:4D:5E"
       responses:
         "200":
-          description: Vendor found
+          description: >
+            Always returned for a well-formed query, whether or not the
+            prefix is registered. Unregistered prefixes come back as
+            success: false with an error message instead of a 404; see
+            the README Notes for a live example.
           content:
             application/json:
               schema:
@@ -40,9 +47,8 @@ paths:
                   country: { type: string, example: "TW" }
                   page: { type: string, format: uri }
                   attribution: { type: string }
+                  error: { type: string, description: "Present instead of oui/vendor/registry/country/page when success is false" }
         "400":
           description: Fewer than 6 hex digits provided
-        "404":
-          description: Prefix not registered with the IEEE
         "429":
-          description: Rate limit exceeded (30/minute or 500/day per IP)
+          description: Rate limit exceeded (30/minute or 1,000/day per IP)

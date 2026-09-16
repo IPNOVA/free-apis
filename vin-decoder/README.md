@@ -75,6 +75,6 @@ print(f"{car['model_year']} {car['make']} {car['model']}")
 
 - Each VIN is decoded against NHTSA vPIC upstream once, ever. After that first decode it serves from our permanent cache, so repeated integration calls are fast and place no further load on the government source.
 - This API's limits are lower than IPNOVA's other free APIs (20/minute, 300/day) because a VIN that has never been seen before still calls NHTSA vPIC live at request time; the cap protects that upstream government service from uncached traffic.
-- Responses are `no-store` and VINs are never logged. Fields the decode does not return (a "Not Applicable" upstream value) are omitted, never invented.
+- Responses are sent with `Cache-Control: no-store`. VINs are never logged. Fields the decode does not return (a "Not Applicable" upstream value) are omitted, never invented.
 - Data sources: NHTSA vPIC (US public domain) for the decode itself. The linked `specs_page`, when present, adds EPA fueleconomy.gov figures and the NHTSA recalls database (both US public domain), refreshed monthly.
 - Build facts only: no ownership, title or accident data, ever.

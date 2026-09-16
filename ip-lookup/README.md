@@ -75,3 +75,4 @@ print(r["data"]["isp"], r["data"]["is_datacenter"])
 - `risk_score` (0 to 100) and `risk_level` combine the VPN / datacenter / Tor signals into one number; treat them as advisory, not as a verdict.
 - City-level accuracy varies by provider and region, as with all IP geolocation.
 - Attribution for the geo/ASN layer: [DB-IP Lite](https://db-ip.com) under CC BY 4.0.
+- Responses are cacheable for one hour (`Cache-Control: public, max-age=3600`).

@@ -18,12 +18,12 @@ Every API below runs on its own locally hosted dataset on our infrastructure. No
 | [IP Intelligence](./ip-lookup/) | `GET ipsnapshot.com/api/ip/{ip}` | [live docs](https://ipsnapshot.com/ip-lookup-api) | DB-IP Lite (CC BY 4.0) + curated threat lists |
 | [SWIFT / BIC Lookup](./swift-codes/) | `GET swiftcodecheck.com/api/swift/{code}` | [live docs](https://swiftcodecheck.com/swift-code-api) | Open SWIFT/BIC dataset (MIT), 112k codes |
 | [IBAN Validation](./iban-validation/) | `GET ibancodecheck.com/api/iban/{iban}` | [live docs](https://ibancodecheck.com/iban-api) | Algorithmic, 78 national formats |
-| [Bank Holidays](./bank-holidays/) | `GET bankholidaycheck.com/api/holidays/{cc}/{year}` | [live docs](https://bankholidaycheck.com/holiday-api) | python-holidays (MIT), 246 countries |
+| [Bank Holidays](./bank-holidays/) | `GET bankholidaycheck.com/api/holidays/{cc}/{year}` and 3 more | [live docs](https://bankholidaycheck.com/holiday-api) | python-holidays (MIT), 150+ countries |
 | [MAC Vendor Lookup](./mac-vendor/) | `GET macvendorcheck.com/api/mac/{mac}` | [live docs](https://macvendorcheck.com/mac-address-lookup-api) | IEEE MA-L / MA-M / MA-S registry |
-| [Postal Code Lookup](./postal-codes/) | `GET postalcodecheck.com/api/postal/{cc}/{code}` | [live docs](https://postalcodecheck.com/postal-code-api) | GeoNames (CC BY 4.0), 887k codes |
+| [Postal Code Lookup](./postal-codes/) | `GET postalcodecheck.com/api/postal/{cc}/{code}` and 1 more | [live docs](https://postalcodecheck.com/postal-code-api) | GeoNames (CC BY 4.0), 887k codes |
 | [Phone / Area Codes](./phone-area-codes/) | `GET areacodecheck.com/api/phone/{number}` | [live docs](https://areacodecheck.com/phone-api) | ITU / NANPA assignments, libphonenumber (Apache 2.0) |
-| [Airport Codes and Routes](./airport-codes/) | `GET airportcodecheck.com/api/airport/{code}` | [live docs](https://airportcodecheck.com/airport-api) | OurAirports (public domain), Wikipedia route tables (CC BY-SA) |
-| [HS / Tariff Codes](./hs-tariff-codes/) | `GET tariffcodecheck.com/api/hs/{code}` | [live docs](https://tariffcodecheck.com/hs-code-api) | US HTS (public domain), EU Combined Nomenclature (Eurostat), UK Tariff (OGL v3) |
+| [Airport Codes and Routes](./airport-codes/) | `GET airportcodecheck.com/api/airport/{code}` and 4 more | [live docs](https://airportcodecheck.com/airport-api) | OurAirports (public domain), Wikipedia route tables (CC BY-SA) |
+| [HS / Tariff Codes](./hs-tariff-codes/) | `GET tariffcodecheck.com/api/hs/{code}` and 1 more | [live docs](https://tariffcodecheck.com/hs-code-api) | US HTS (public domain), EU Combined Nomenclature (Eurostat), UK Tariff (OGL v3) |
 | [Disposable Email Domains](./disposable-email/) | `GET emaildomaincheck.com/api/email-domain/{domain}` | [live docs](https://emaildomaincheck.com/email-api) | Four open blocklists (CC0 / MIT), 76k domains |
 | [VIN Decoder](./vin-decoder/) | `GET vindecodercheck.com/api/vin/{vin}` | [live docs](https://vindecodercheck.com/vin-api) | NHTSA vPIC and recalls, EPA fuel economy (US public data) |
 
@@ -76,7 +76,7 @@ The same limits apply to every API unless its own page says otherwise:
 - **500 requests per day** and **30 per minute**, per IP. The VIN decoder allows 300 per day and 20 per minute because first-time decodes reach the NHTSA service. The MAC vendor lookup allows 1,000 per day.
 - Responses are cacheable (respect the `Cache-Control` headers and cache on your side where you can).
 - Free for personal and commercial use. Attribution is appreciated: a link to the API's website.
-- Need more volume, or a key for production use? The same APIs are available with higher limits at **[api.ipnova.com](https://api.ipnova.com)**. Genuine open-source and research projects can write to **hello@ipnova.com**.
+- Need more volume? Plans with higher limits and one key for all twelve APIs open shortly at **[api.ipnova.com](https://api.ipnova.com)**; a free account gets you in first. Genuine open-source and research projects can write to **hello@ipnova.com**.
 
 ## Reliability
 
@@ -88,4 +88,4 @@ These APIs are built and operated by [IPNOVA SYSTEMS LTD](https://ipnova.com), a
 
 ## License
 
-The documentation and examples in this repository are [MIT licensed](./LICENSE). The underlying datasets keep their own licenses, credited per API above and in each response's `attribution` field.
+The documentation and examples in this repository are [MIT licensed](./LICENSE). The underlying datasets keep their own licenses, credited per API above and, where a response carries one, in its `attribution` or `source` field.

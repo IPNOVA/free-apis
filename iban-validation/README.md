@@ -12,7 +12,7 @@ GET /api/iban/{iban}
 
 | Parameter | Type | Description |
 |---|---|---|
-| `iban` | path, required | An IBAN, with or without spaces or dashes; 5 to 34 characters once normalized |
+| `iban` | path, required | An IBAN, letters and digits only in the URL; strip spaces and dashes before calling. 5 to 34 characters once normalized |
 
 ## Example
 
@@ -87,7 +87,7 @@ print(f"{data['formatted']} -> valid: {data['valid']}, SEPA: {data['sepa']}")
 
 | Status | Meaning |
 |---|---|
-| `400` | Input is not 5 to 34 characters once normalized |
+| `400` | Input is not 5 to 34 characters once normalized (the URL path only accepts letters and digits, so a dashed or spaced IBAN never reaches this check; it 404s at the route level instead) |
 | `429` | Rate limit hit: 30/minute or 500/day per IP |
 
 ## Notes
@@ -96,3 +96,4 @@ print(f"{data['formatted']} -> valid: {data['valid']}, SEPA: {data['sepa']}")
 - An unknown country code, a wrong length for the country, or a failed checksum still return `200` with `valid: false` and the reason in `data.error`, so a form can show a helpful message. Only input outside the 5 to 34 character range returns `400`.
 - `bank_code` is filled in only for countries where the registry defines a fixed position for it; it comes back empty otherwise.
 - Responses are sent with `Cache-Control: no-store`. IBANs are never written to disk or logged.
+- 78 country IBAN formats are covered by the registry.

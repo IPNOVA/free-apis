@@ -124,14 +124,12 @@ paths:
                 error: true
                 message: "Not a valid domain."
         "429":
-          description: >
-            Rate limit exceeded: 30 requests per minute or 500 requests per
-            day, per IP. An IPNOVA API key raises the limit.
+          description: Rate limit exceeded (30/minute or 500/day per IP)
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ApiError"
               example:
                 error: true
-                message: "Rate limit exceeded: 30 requests per minute. For bulk needs use the downloadable list at https://emaildomaincheck.com/disposable-email-domains An IPNOVA API key raises the limit."
+                message: "Rate limit exceeded: 30 requests per minute. For bulk needs use the downloadable list at https://emaildomaincheck.com/disposable-email-domains Higher-limit plans open shortly at api.ipnova.com."
                 upgrade: "https://api.ipnova.com/"
