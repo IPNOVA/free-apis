@@ -11,6 +11,7 @@ Notable changes to the twelve APIs. Data refreshes run on schedule and are not l
 - Status codes were aligned: malformed input is `400` everywhere (the VIN decoder and disposable email APIs returned `422`), and a valid query with no record is `404` everywhere (the MAC vendor API returned `200` with `success: false` for unregistered prefixes).
 - API keys from [api.ipnova.com](https://api.ipnova.com) are accepted on every API as the `X-Api-Key` header or the `?key=` query parameter. Keyed responses carry `X-Credits-Remaining`, `X-Credits-Used` and `X-Plan`. Keyless access keeps working within the per-IP limits.
 - The `?key=` parameter is passed through on every `/api/...` route.
+- The free plan at api.ipnova.com is 30,000 credits a month and 60 requests a minute, double the keyless per-IP allowance, so a free key is always the better way to call the APIs.
 
 **What to check in existing integrations.** Success payloads are unchanged. If your code parses error bodies, note that `error` is now the boolean `true` and the text moved to `message`. If your code relied on `422` or on the MAC API's `200` for unknown prefixes, update the status checks.
 
