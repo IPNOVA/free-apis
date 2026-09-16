@@ -16,6 +16,44 @@ info:
     url: https://vindecodercheck.com/vin-api
 servers:
   - url: https://vindecodercheck.com
+security:
+  - {}
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
+components:
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: >
+        Optional. A free api.ipnova.com key applies your plan allowance
+        instead of the per-IP limits. A decode costs 3 credits.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: Optional. Same effect as the X-Api-Key header, for clients that cannot set headers.
+  headers:
+    XCreditsRemaining:
+      description: >
+        Remaining monthly credits for the resolved key, or "unavailable" if
+        the key service could not be reached. Present only on keyed requests.
+      schema: { type: string }
+    XCreditsUsed:
+      description: Credits this request consumed (3 per decode). Present only on keyed requests.
+      schema: { type: string }
+  schemas:
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        error: { type: boolean, example: true }
+        reason:
+          type: string
+          enum: [invalid_input, invalid_key, rate_limit, daily_limit, credits_exhausted, upstream_unavailable]
+        message: { type: string }
+        docs: { type: string, format: uri }
 paths:
   /api/vin/{vin}:
     get:
@@ -40,6 +78,7 @@ paths:
               schema:
                 type: object
                 properties:
+                  success: { type: boolean, example: true }
                   vin: { type: string, example: "1HGCM82633A004352" }
                   make: { type: string, example: "HONDA" }
                   model: { type: string, example: "Accord" }
@@ -61,55 +100,80 @@ paths:
                   recalls_on_record: { type: integer, example: 15 }
                   source: { type: string, example: "NHTSA vPIC (US public domain)" }
                   docs: { type: string, format: uri, example: "https://vindecodercheck.com/vin-api" }
-        "422":
-          description: VIN is not 11 to 17 characters, or contains I, O or Q
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
+        "400":
+          description: "invalid_input: VIN is not 11 to 17 characters, or contains I, O or Q"
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error: { type: boolean, example: true }
-                  message: { type: string, example: "Provide a VIN (17 characters; partial VINs of 11+ accepted)." }
+              schema: { $ref: "#/components/schemas/Error" }
               examples:
                 tooShort:
                   summary: VIN outside the 11 to 17 character range
                   value:
+                    success: false
                     error: true
+                    reason: "invalid_input"
                     message: "Provide a VIN (17 characters; partial VINs of 11+ accepted)."
+                    docs: "https://vindecodercheck.com/vin-api"
                 bannedLetters:
                   summary: VIN contains I, O or Q
                   value:
+                    success: false
                     error: true
+                    reason: "invalid_input"
                     message: "VINs never contain the letters I, O or Q."
+                    docs: "https://vindecodercheck.com/vin-api"
+        "401":
+          description: "invalid_key: the API key sent is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                success: false
+                error: true
+                reason: "invalid_key"
+                message: "This API key is unknown, revoked or expired. Check your keys at https://api.ipnova.com/keys."
+                docs: "https://vindecodercheck.com/vin-api"
         "429":
-          description: Rate limit exceeded (20/minute or 300/day per IP)
+          description: "rate_limit, daily_limit or credits_exhausted depending on which allowance ran out"
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error: { type: boolean, example: true }
-                  message: { type: string, example: "Rate limit exceeded: 20 requests per minute. Higher-limit plans open shortly at api.ipnova.com." }
-                  upgrade: { type: string, format: uri, example: "https://api.ipnova.com/" }
+              schema: { $ref: "#/components/schemas/Error" }
               examples:
-                perMinute:
-                  summary: Per-minute cap hit
+                rateLimit:
+                  summary: Per-minute cap hit (keyless, 20/minute per IP)
                   value:
+                    success: false
                     error: true
-                    message: "Rate limit exceeded: 20 requests per minute. Higher-limit plans open shortly at api.ipnova.com."
-                    upgrade: "https://api.ipnova.com/"
-                perDay:
-                  summary: Daily cap hit
+                    reason: "rate_limit"
+                    message: "Rate limit exceeded: 20 requests per minute."
+                    docs: "https://vindecodercheck.com/vin-api"
+                dailyLimit:
+                  summary: Keyless daily cap hit (300/day per IP)
                   value:
+                    success: false
                     error: true
-                    message: "Daily limit reached (300/day). Higher-limit plans open shortly at api.ipnova.com."
-                    upgrade: "https://api.ipnova.com/"
+                    reason: "daily_limit"
+                    message: "Daily limit reached (300/day)."
+                    docs: "https://vindecodercheck.com/vin-api"
+                creditsExhausted:
+                  summary: Keyed request out of monthly plan credits (a decode costs 3)
+                  value:
+                    success: false
+                    error: true
+                    reason: "credits_exhausted"
+                    message: "Monthly credit allowance used up. Credits reset on the first of next month."
+                    docs: "https://vindecodercheck.com/vin-api"
         "502":
-          description: Upstream vPIC decoder unavailable, try again shortly
+          description: "upstream_unavailable: the NHTSA vPIC decoder did not answer, only on an uncached VIN's first decode"
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  error: { type: boolean, example: true }
-                  message: { type: string, example: "Upstream decoder unavailable, try again shortly." }
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                success: false
+                error: true
+                reason: "upstream_unavailable"
+                message: "Upstream decoder unavailable, try again shortly."
+                docs: "https://vindecodercheck.com/vin-api"

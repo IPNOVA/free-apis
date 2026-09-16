@@ -14,6 +14,10 @@ info:
     url: https://cardbincheck.com/bin-lookup-api
 servers:
   - url: https://cardbincheck.com
+security:
+  - {}
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
 paths:
   /api/bin/{bin}:
     get:
@@ -31,6 +35,9 @@ paths:
       responses:
         "200":
           description: BIN found
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -53,11 +60,30 @@ paths:
                   attribution: { type: string }
                   docs: { type: string, format: uri }
         "400":
-          description: Input is not 6 to 8 digits
+          description: "invalid_input: input is not 6 to 8 digits"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "404":
-          description: BIN not in the public dataset
+          description: "not_found: BIN not in the public dataset"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Error"
+                  - type: object
+                    properties:
+                      bin: { type: string, example: "999999" }
         "429":
-          description: Rate limit exceeded (30/minute or 500/day per IP)
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
   /api/bin-batch:
     post:
       summary: Look up up to 100 BINs in one call
@@ -79,6 +105,9 @@ paths:
       responses:
         "200":
           description: Batch results, one entry per input item (duplicates collapsed)
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -106,10 +135,59 @@ paths:
                   attribution: { type: string }
                   docs: { type: string, format: uri }
         "400":
-          description: "bins missing, empty, not an array, or over 100 items"
+          description: "invalid_input: bins missing, empty, not an array, or over 100 items"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "405":
-          description: Method is not POST
+          description: "method_not_allowed: method is not POST"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "413":
-          description: Request body over 64 KB
+          description: "payload_too_large: request body over 64 KB"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "429":
-          description: Rate limit exceeded (30/minute or 500/day per IP), batch calls cost ceil(n/10) requests
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP, batch calls cost ceil(n/10)) or credits_exhausted"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+components:
+  schemas:
+    Error:
+      type: object
+      description: Shared error envelope for every non-200 response across all IPNOVA APIs.
+      required: [success, error, reason, message, docs]
+      properties:
+        success: { type: boolean, enum: [false] }
+        error: { type: boolean, enum: [true] }
+        reason:
+          type: string
+          enum: [invalid_input, invalid_key, not_found, method_not_allowed, payload_too_large, rate_limit, daily_limit, credits_exhausted]
+        message: { type: string, example: "BIN not found in the public dataset." }
+        docs: { type: string, format: uri, example: "https://cardbincheck.com/bin-lookup-api" }
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Optional. A free api.ipnova.com key applies your plan allowance instead of the per-IP limits.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: Optional. Same key, passed as a query parameter instead of the header.
+  headers:
+    XCreditsRemaining:
+      description: Credits left in the current plan cycle for keyed requests; "unavailable" if the key service could not be reached.
+      schema: { type: string, example: "4999" }
+    XCreditsUsed:
+      description: Credits charged for this call. Only 200 responses consume credits.
+      schema: { type: string, example: "1" }

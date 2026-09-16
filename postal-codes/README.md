@@ -24,6 +24,7 @@ curl https://postalcodecheck.com/api/postal/US/90210
 
 ```json
 {
+  "success": true,
   "country": "US",
   "country_name": "United States",
   "code": "90210",
@@ -60,11 +61,30 @@ print(j["places"][0]["place"])
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Country code is not two letters |
-| `404` | Country not covered, or code not in the dataset |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Country code is not two letters |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | Country not covered, or code not in the dataset |
+| `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl -s http://127.0.0.1:8108/api/postal/US/00000
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "Code not found for US.",
+  "docs": "https://postalcodecheck.com/postal-code-api"
+}
+```
 
 ## Notes
 
@@ -72,3 +92,4 @@ print(j["places"][0]["place"])
 - UK coverage is at outward-code level (`SW1A`), which is what the open dataset provides.
 - Data: [GeoNames postal dataset](https://www.geonames.org) under CC BY 4.0; the `source` field carries the attribution.
 - Responses are cacheable for 24 hours (`Cache-Control: public, max-age=86400`).
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

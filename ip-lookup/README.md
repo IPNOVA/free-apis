@@ -65,10 +65,29 @@ print(r["data"]["isp"], r["data"]["is_datacenter"])
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Not a valid IPv4 or IPv6 address |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Not a valid IPv4 or IPv6 address |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl -s http://127.0.0.1:8102/api/ip/999.999.999.999
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "invalid_input",
+  "message": "Invalid IP. Provide an IPv4 or IPv6 address: /api/ip/8.8.8.8 (or /api/ip/self)",
+  "docs": "https://ipsnapshot.com/ip-lookup-api"
+}
+```
 
 ## Notes
 
@@ -76,3 +95,4 @@ print(r["data"]["isp"], r["data"]["is_datacenter"])
 - City-level accuracy varies by provider and region, as with all IP geolocation.
 - Attribution for the geo/ASN layer: [DB-IP Lite](https://db-ip.com) under CC BY 4.0.
 - Responses are cacheable for one hour (`Cache-Control: public, max-age=3600`).
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

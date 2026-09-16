@@ -14,6 +14,10 @@ info:
     url: https://macvendorcheck.com/mac-address-lookup-api
 servers:
   - url: https://macvendorcheck.com
+security:
+  - {}
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
 paths:
   /api/mac/{mac}:
     get:
@@ -29,11 +33,10 @@ paths:
             example: "00:1A:2B:3C:4D:5E"
       responses:
         "200":
-          description: >
-            Always returned for a well-formed query, whether or not the
-            prefix is registered. Unregistered prefixes come back as
-            success: false with an error message instead of a 404; see
-            the README Notes for a live example.
+          description: Prefix found and registered to a vendor.
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -47,8 +50,63 @@ paths:
                   country: { type: string, example: "TW" }
                   page: { type: string, format: uri }
                   attribution: { type: string }
-                  error: { type: string, description: "Present instead of oui/vendor/registry/country/page when success is false" }
         "400":
-          description: Fewer than 6 hex digits provided
+          description: "invalid_input: fewer than 6 hex digits provided"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "404":
+          description: >
+            not_found: no vendor registered for this prefix. Randomized/private
+            MAC addresses (second hex digit 2, 6, A or E) are intentionally
+            unregistered and come back this way.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Error"
+                  - type: object
+                    properties:
+                      mac: { type: string, example: "02:00:00" }
         "429":
-          description: Rate limit exceeded (30/minute or 1,000/day per IP)
+          description: "rate_limit (30/minute per IP), daily_limit (1,000/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+components:
+  schemas:
+    Error:
+      type: object
+      description: Shared error envelope for every non-200 response across all IPNOVA APIs.
+      required: [success, error, reason, message, docs]
+      properties:
+        success: { type: boolean, enum: [false] }
+        error: { type: boolean, enum: [true] }
+        reason:
+          type: string
+          enum: [invalid_input, invalid_key, not_found, rate_limit, daily_limit, credits_exhausted]
+        message: { type: string, example: "No vendor found for this MAC in the IEEE registry." }
+        docs: { type: string, format: uri, example: "https://macvendorcheck.com/mac-address-lookup-api" }
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Optional. A free api.ipnova.com key applies your plan allowance instead of the per-IP limits.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: Optional. Same key, passed as a query parameter instead of the header.
+  headers:
+    XCreditsRemaining:
+      description: Credits left in the current plan cycle for keyed requests; "unavailable" if the key service could not be reached.
+      schema: { type: string, example: "4999" }
+    XCreditsUsed:
+      description: Credits charged for this call. Only 200 responses consume credits.
+      schema: { type: string, example: "1" }

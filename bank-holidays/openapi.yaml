@@ -16,6 +16,10 @@ info:
     url: https://bankholidaycheck.com/holiday-api
 servers:
   - url: https://bankholidaycheck.com
+security:
+  - {}
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
 components:
   parameters:
     cc:
@@ -30,6 +34,37 @@ components:
       required: false
       description: Language for holiday names
       schema: { type: string, enum: [en, es, fr, de, pt, it, nl, pl], default: en }
+  schemas:
+    Error:
+      type: object
+      description: Shared error envelope for every non-200 response across all IPNOVA APIs.
+      required: [success, error, reason, message, docs]
+      properties:
+        success: { type: boolean, enum: [false] }
+        error: { type: boolean, enum: [true] }
+        reason:
+          type: string
+          enum: [invalid_input, invalid_key, not_found, rate_limit, daily_limit, credits_exhausted]
+        message: { type: string, example: "No data for United Kingdom in 2030. Years available: 2025, 2026, 2027, 2028." }
+        docs: { type: string, format: uri, example: "https://bankholidaycheck.com/holiday-api" }
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Optional. A free api.ipnova.com key applies your plan allowance instead of the per-IP limits.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: Optional. Same key, passed as a query parameter instead of the header.
+  headers:
+    XCreditsRemaining:
+      description: Credits left in the current plan cycle for keyed requests; "unavailable" if the key service could not be reached.
+      schema: { type: string, example: "4999" }
+    XCreditsUsed:
+      description: Credits charged for this call. Only 200 responses consume credits.
+      schema: { type: string, example: "1" }
 paths:
   /api/holidays/{cc}/{year}:
     get:
@@ -45,6 +80,9 @@ paths:
       responses:
         "200":
           description: List of holidays
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -66,8 +104,18 @@ paths:
                   page: { type: string, format: uri }
                   attribution: { type: string }
                   docs: { type: string, format: uri }
-        "404": { description: Country or year not in the dataset }
-        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
+        "400":
+          description: "invalid_input: malformed country code or year out of range"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "404":
+          description: "not_found: country or year not in the dataset"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "429":
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   /api/holidays/next/{cc}:
     get:
       summary: The next upcoming holiday for a country
@@ -78,6 +126,9 @@ paths:
       responses:
         "200":
           description: Next holiday with a days-until counter
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -95,8 +146,18 @@ paths:
                   page: { type: string, format: uri }
                   attribution: { type: string }
                   docs: { type: string, format: uri }
-        "404": { description: Country not in the dataset }
-        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
+        "400":
+          description: "invalid_input: malformed or unsupported country code"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "404":
+          description: "not_found: no upcoming holiday data for the country"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "429":
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   /api/holidays/check/{cc}/{date}:
     get:
       summary: Is a specific date a holiday or weekend?
@@ -111,6 +172,9 @@ paths:
       responses:
         "200":
           description: Verdict for the date, including weekends
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -131,8 +195,15 @@ paths:
                   page: { type: string, format: uri }
                   attribution: { type: string }
                   docs: { type: string, format: uri }
-        "400": { description: Malformed date }
-        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
+        "400":
+          description: "invalid_input: malformed country code or date"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "429":
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   /api/business-days/{cc}/{from}/{to}:
     get:
       summary: Business days between two dates, holidays excluded
@@ -151,6 +222,9 @@ paths:
       responses:
         "200":
           description: Business-day count between from and to, inclusive, with holidays skipped
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -179,5 +253,12 @@ paths:
                   page: { type: string, format: uri }
                   attribution: { type: string }
                   docs: { type: string, format: uri }
-        "400": { description: "Invalid dates, or the range is over 5 years" }
-        "429": { description: Rate limit exceeded (30/minute or 500/day per IP) }
+        "400":
+          description: "invalid_input: invalid dates, or the range is over 5 years"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+        "429":
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }

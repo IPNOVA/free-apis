@@ -14,6 +14,42 @@ info:
     url: https://swiftcodecheck.com/swift-code-api
 servers:
   - url: https://swiftcodecheck.com
+security:
+  - {}
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
+components:
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Optional. A free api.ipnova.com key applies your plan allowance instead of the per-IP limits.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: Optional. Same effect as the X-Api-Key header, for clients that cannot set headers.
+  headers:
+    XCreditsRemaining:
+      description: >
+        Remaining monthly credits for the resolved key, or "unavailable" if
+        the key service could not be reached. Present only on keyed requests.
+      schema: { type: string }
+    XCreditsUsed:
+      description: Credits this request consumed (1). Present only on keyed requests.
+      schema: { type: string }
+  schemas:
+    Error:
+      type: object
+      properties:
+        success: { type: boolean, example: false }
+        error: { type: boolean, example: true }
+        reason:
+          type: string
+          enum: [invalid_input, invalid_key, not_found, rate_limit, daily_limit, credits_exhausted]
+        message: { type: string }
+        docs: { type: string, format: uri }
 paths:
   /api/swift/{code}:
     get:
@@ -55,9 +91,71 @@ paths:
                   page: { type: string, format: uri }
                   attribution: { type: string }
                   docs: { type: string, format: uri }
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
         "400":
-          description: Input is not a valid 8 or 11-character SWIFT/BIC format
+          description: "invalid_input: input is not a valid 8 or 11-character SWIFT/BIC format"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                success: false
+                error: true
+                reason: "invalid_input"
+                message: "Provide a valid 8 or 11-character SWIFT/BIC code."
+                docs: "https://swiftcodecheck.com/swift-code-api"
+        "401":
+          description: "invalid_key: the API key sent is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                success: false
+                error: true
+                reason: "invalid_key"
+                message: "This API key is unknown, revoked or expired. Check your keys at https://api.ipnova.com/keys."
+                docs: "https://swiftcodecheck.com/swift-code-api"
         "404":
-          description: Code has a valid format but is not in the public dataset
+          description: "not_found: code has a valid format but is not in the public dataset"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              example:
+                success: false
+                error: true
+                reason: "not_found"
+                message: "SWIFT code not found in the public dataset. The format is valid - verify the code with the bank."
+                docs: "https://swiftcodecheck.com/swift-code-api"
+                code: "ZZZZUS00XXX"
+                valid_format: true
         "429":
-          description: Rate limit exceeded (30/minute or 500/day per IP)
+          description: "rate_limit, daily_limit or credits_exhausted depending on which allowance ran out"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+              examples:
+                rateLimit:
+                  summary: Per-minute cap hit (keyless, 30/minute per IP)
+                  value:
+                    success: false
+                    error: true
+                    reason: "rate_limit"
+                    message: "Too many requests. Please slow down and try again in a minute."
+                    docs: "https://swiftcodecheck.com/swift-code-api"
+                dailyLimit:
+                  summary: Keyless daily cap hit (500/day per IP)
+                  value:
+                    success: false
+                    error: true
+                    reason: "daily_limit"
+                    message: "Daily API limit reached (500 requests/day per IP). Resets at midnight UTC."
+                    docs: "https://swiftcodecheck.com/swift-code-api"
+                creditsExhausted:
+                  summary: Keyed request out of monthly plan credits
+                  value:
+                    success: false
+                    error: true
+                    reason: "credits_exhausted"
+                    message: "Monthly credit allowance used up. Credits reset on the first of next month."
+                    docs: "https://swiftcodecheck.com/swift-code-api"

@@ -105,13 +105,33 @@ print(f"{data['scheme']} {data['funding']} card from {data['country_name']}")
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Input is not 6 to 8 digits; or, on the batch endpoint, `bins` missing/empty/not an array, or more than 100 items |
-| `404` | BIN not present in the public dataset |
-| `405` | `GET` on `/api/bin-batch`, or a non-`POST`/`GET` method on either endpoint |
-| `413` | Batch request body over 64 KB |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Input is not 6 to 8 digits; or, on the batch endpoint, `bins` missing/empty/not an array, or more than 100 items |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | BIN not present in the public dataset |
+| `405` | `method_not_allowed` | `GET` on `/api/bin-batch`, or a non-`POST`/`GET` method on either endpoint |
+| `413` | `payload_too_large` | Batch request body over 64 KB |
+| `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl -s http://127.0.0.1:8101/api/bin/999999
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "BIN not found in the public dataset.",
+  "docs": "https://cardbincheck.com/bin-lookup-api",
+  "bin": "999999"
+}
+```
 
 ## Notes
 
@@ -119,3 +139,4 @@ print(f"{data['scheme']} {data['funding']} card from {data['country_name']}")
 - Fields the dataset does not disclose come back as `"Unknown"` or an empty string, never invented.
 - Responses are cacheable for 24 hours (`Cache-Control: public, max-age=86400`); batch responses are sent `no-store` since each is call-specific.
 - A batch call counts against the daily limit as `ceil(n / 10)` requests (based on the size of the submitted `bins` array), so a 100-BIN batch costs 10, not 100. Duplicate BINs within one batch are looked up once; the extra occurrences are dropped, so `results` and `count` can be shorter than the input array.
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

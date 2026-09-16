@@ -22,6 +22,7 @@ curl https://vindecodercheck.com/api/vin/1HGCM82633A004352
 
 ```json
 {
+  "success": true,
   "vin": "1HGCM82633A004352",
   "make": "HONDA",
   "model": "Accord",
@@ -65,11 +66,30 @@ print(f"{car['model_year']} {car['make']} {car['model']}")
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `422` | VIN is not 11 to 17 characters, or contains I, O or Q |
-| `429` | Rate limit hit: 20/minute or 300/day per IP |
-| `502` | Upstream vPIC decoder unavailable (only on an uncached VIN's first decode), try again shortly |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | VIN is not 11 to 17 characters, or contains I, O or Q. |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `429` | `rate_limit` | Too many requests: 20/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (300/day) is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+| `502` | `upstream_unavailable` | Upstream vPIC decoder unavailable (only on an uncached VIN's first decode). Retry with backoff. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl https://vindecodercheck.com/api/vin/SHORTVINXXXX
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "invalid_input",
+  "message": "VINs never contain the letters I, O or Q.",
+  "docs": "https://vindecodercheck.com/vin-api"
+}
+```
 
 ## Notes
 
@@ -78,3 +98,4 @@ print(f"{car['model_year']} {car['make']} {car['model']}")
 - Responses are sent with `Cache-Control: no-store`. VINs are never logged. Fields the decode does not return (a "Not Applicable" upstream value) are omitted, never invented.
 - Data sources: NHTSA vPIC (US public domain) for the decode itself. The linked `specs_page`, when present, adds EPA fueleconomy.gov figures and the NHTSA recalls database (both US public domain), refreshed monthly.
 - Build facts only: no ownership, title or accident data, ever.
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`. A decode costs 3 credits.

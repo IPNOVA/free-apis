@@ -15,6 +15,10 @@ info:
     url: https://areacodecheck.com/phone-api
 servers:
   - url: https://areacodecheck.com
+security:
+  - {}
+  - ApiKeyHeader: []
+  - ApiKeyQuery: []
 paths:
   /api/phone/{number}:
     get:
@@ -31,6 +35,9 @@ paths:
       responses:
         "200":
           description: Prefix analysis
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
           content:
             application/json:
               schema:
@@ -55,6 +62,49 @@ paths:
                   attribution: { type: string }
                   docs: { type: string, format: uri }
         "400":
-          description: Fewer than 3 or more than 15 digits
+          description: "invalid_input: fewer than 3 or more than 15 digits"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
         "429":
-          description: Rate limit exceeded (30/minute or 500/day per IP)
+          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+components:
+  schemas:
+    Error:
+      type: object
+      description: Shared error envelope for every non-200 response across all IPNOVA APIs.
+      required: [success, error, reason, message, docs]
+      properties:
+        success: { type: boolean, enum: [false] }
+        error: { type: boolean, enum: [true] }
+        reason:
+          type: string
+          enum: [invalid_input, invalid_key, rate_limit, daily_limit, credits_exhausted]
+        message: { type: string, example: "Provide a phone number of 3 to 15 digits: /api/phone/+14155552671" }
+        docs: { type: string, format: uri, example: "https://areacodecheck.com/phone-api" }
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+      description: Optional. A free api.ipnova.com key applies your plan allowance instead of the per-IP limits.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: key
+      description: Optional. Same key, passed as a query parameter instead of the header.
+  headers:
+    XCreditsRemaining:
+      description: Credits left in the current plan cycle for keyed requests; "unavailable" if the key service could not be reached.
+      schema: { type: string, example: "4999" }
+    XCreditsUsed:
+      description: Credits charged for this call. Only 200 responses consume credits.
+      schema: { type: string, example: "1" }

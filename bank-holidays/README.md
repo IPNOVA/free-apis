@@ -92,11 +92,30 @@ for day in year["data"]:
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Malformed country code, year, date, or `from`/`to` range (invalid dates, or over 5 years apart) |
-| `404` | Country or year not in the dataset |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Malformed country code, year, date, or `from`/`to` range (invalid dates, or over 5 years apart) |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | Country or year not in the dataset, or (on the `next` endpoint) no upcoming holiday data for the country |
+| `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl -s http://127.0.0.1:8106/api/holidays/GB/2030
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "No data for United Kingdom in 2030. Years available: 2025, 2026, 2027, 2028.",
+  "docs": "https://bankholidaycheck.com/holiday-api"
+}
+```
 
 ## Notes
 
@@ -105,3 +124,4 @@ for day in year["data"]:
 - Transfers timing tip: for international payments the holidays of *both* countries matter.
 - The business-days endpoint counts weekdays between `from` and `to` inclusive, minus any holiday in `data.holidays_skipped`; the date range accepts either order and is capped at 5 years.
 - Responses are cacheable (`Cache-Control: public, max-age=3600`).
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

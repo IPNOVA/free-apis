@@ -61,10 +61,29 @@ print(j["data"]["country"])
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Fewer than 3 or more than 15 digits |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Fewer than 3 or more than 15 digits |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl -s http://127.0.0.1:8105/api/phone/1-1
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "invalid_input",
+  "message": "Provide a phone number of 3 to 15 digits: /api/phone/+14155552671",
+  "docs": "https://areacodecheck.com/phone-api"
+}
+```
 
 ## Notes
 
@@ -72,3 +91,4 @@ print(j["data"]["country"])
 - Area-code detail (`area_code`, `area_location`, `timezone`) applies to NANP (+1) numbers; other countries return the country-level fields.
 - Privacy by design: the number is analyzed in memory and discarded; only anonymous rate-limit counters exist.
 - Responses are sent with `Cache-Control: no-store`, consistent with the no-storage design; nothing is cached.
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

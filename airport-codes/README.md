@@ -28,6 +28,7 @@ curl https://airportcodecheck.com/api/airport/FNC
 
 ```json
 {
+  "success": true,
   "airport": {
     "slug": "fnc",
     "name": "Cristiano Ronaldo International Airport",
@@ -72,11 +73,30 @@ else:
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Search query (`q`) shorter than 2 characters |
-| `404` | Unknown airport code, on a lookup, a routes request, or either side of a connection |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Search query (`q`) shorter than 2 characters. |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | Unknown airport code, on a lookup, a routes request, or either side of a connection. |
+| `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl https://airportcodecheck.com/api/airport/ZZZ
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "No airport found for \"ZZZ\".",
+  "docs": "https://airportcodecheck.com/airport-api"
+}
+```
 
 ## Notes
 
@@ -86,3 +106,4 @@ else:
 - On every endpoint except search, `country` is the ISO 3166-1 alpha-2 code and `country_name` is the full name. On search, `country` is the full country name, there is no separate code field.
 - `distance_km` and `total_km` are great-circle (straight-line) distances, not flown distances.
 - Responses are cacheable (`Cache-Control: public, max-age=86400`, and `max-age=3600` for search).
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

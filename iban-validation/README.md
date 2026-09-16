@@ -85,10 +85,29 @@ print(f"{data['formatted']} -> valid: {data['valid']}, SEPA: {data['sepa']}")
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Input is not 5 to 34 characters once normalized (the URL path only accepts letters and digits, so a dashed or spaced IBAN never reaches this check; it 404s at the route level instead) |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Input is not 5 to 34 characters once normalized (the URL path only accepts letters and digits, so a dashed or spaced IBAN never reaches this check; it 404s at the route level instead). |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl https://ibancodecheck.com/api/iban/XX00
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "invalid_input",
+  "message": "Provide an IBAN of 5 to 34 characters: /api/iban/DE89370400440532013000",
+  "docs": "https://ibancodecheck.com/iban-api"
+}
+```
 
 ## Notes
 
@@ -97,3 +116,4 @@ print(f"{data['formatted']} -> valid: {data['valid']}, SEPA: {data['sepa']}")
 - `bank_code` is filled in only for countries where the registry defines a fixed position for it; it comes back empty otherwise.
 - Responses are sent with `Cache-Control: no-store`. IBANs are never written to disk or logged.
 - 78 country IBAN formats are covered by the registry.
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

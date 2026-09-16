@@ -60,11 +60,32 @@ print(f"{data['bank']} in {data['city']}, {data['country']}")
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Input is not a valid 8 or 11-character SWIFT/BIC format |
-| `404` | Code has a valid format but is not in the public dataset (response includes `valid_format: true`) |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Input is not a valid 8 or 11-character SWIFT/BIC format. |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | Code has a valid format but is not in the public dataset (response includes `code` and `valid_format: true`). |
+| `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl https://swiftcodecheck.com/api/swift/ZZZZUS00XXX
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "SWIFT code not found in the public dataset. The format is valid - verify the code with the bank.",
+  "docs": "https://swiftcodecheck.com/swift-code-api",
+  "code": "ZZZZUS00XXX",
+  "valid_format": true
+}
+```
 
 ## Notes
 
@@ -72,3 +93,4 @@ print(f"{data['bank']} in {data['city']}, {data['country']}")
 - A `404` with `valid_format: true` means the code is structurally valid ISO 9362 but absent from our directory, not proof that the code does not exist.
 - Data comes from an openly licensed (MIT) dataset of 112,000+ codes; fields the dataset does not disclose come back as an empty string, never invented.
 - Responses are cacheable for 24 hours (`Cache-Control: public, max-age=86400`).
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

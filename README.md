@@ -78,6 +78,37 @@ The same limits apply to every API unless its own page says otherwise:
 - Free for personal and commercial use. Attribution is appreciated: a link to the API's website.
 - Need more volume? Plans with higher limits and one key for all twelve APIs open shortly at **[api.ipnova.com](https://api.ipnova.com)**; a free account gets you in first. Genuine open-source and research projects can write to **hello@ipnova.com**.
 
+## Errors and API keys
+
+Every API answers the same way, so you learn the pattern once.
+
+- Every `200` body starts with `"success": true`. The data fields that follow are specific to each API and documented in its folder.
+- Every non-`200` body is the same envelope, sometimes followed by one or two extra fields:
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "BIN not found in the public dataset.",
+  "docs": "https://cardbincheck.com/bin-lookup-api"
+}
+```
+
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Malformed input. Fix the request. |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | Valid query, no record. |
+| `405` | `method_not_allowed` | Wrong HTTP method for the endpoint. |
+| `413` | `payload_too_large` | Batch body over the documented maximum. |
+| `429` | `rate_limit` | Too many requests per minute. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | A keyed request whose monthly plan allowance is used up. |
+| `502` | `upstream_unavailable` | A source the API depends on did not answer. Retry with backoff. |
+
+**API keys are optional.** A free account at [api.ipnova.com](https://api.ipnova.com) gives you one key for all twelve APIs and a usage dashboard. Send it as the `X-Api-Key` header or the `?key=` query parameter and your plan allowance applies instead of the per-IP limits. Keyed `200` responses carry `X-Credits-Remaining` and `X-Credits-Used`; only `200` responses consume credits. If the key service cannot be reached, the call is served under the keyless limits with `X-Credits-Remaining: unavailable`, so a key never makes an integration less reliable than no key.
+
 ## Reliability
 
 The APIs serve production traffic behind Cloudflare with local datasets refreshed on schedule (daily to monthly depending on the source). Breaking changes are avoided; if one is ever required it will be announced in this repository's releases first.

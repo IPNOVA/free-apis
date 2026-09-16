@@ -22,6 +22,7 @@ curl https://emaildomaincheck.com/api/email-domain/mailinator.com
 
 ```json
 {
+  "success": true,
   "domain": "mailinator.com",
   "disposable": "confirmed",
   "matched_domain": "mailinator.com",
@@ -55,11 +56,29 @@ if j["disposable"] == "confirmed":
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | Missing domain in the request |
-| `422` | Domain is not a syntactically valid hostname |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | Missing domain in the request, or the domain is not a syntactically valid hostname. |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl https://emaildomaincheck.com/api/email-domain/abc
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "invalid_input",
+  "message": "Not a valid domain.",
+  "docs": "https://emaildomaincheck.com/email-api"
+}
+```
 
 ## Notes
 
@@ -71,3 +90,4 @@ if j["disposable"] == "confirmed":
 - Responses are sent with `Cache-Control: no-store`. Nothing about the input is logged or cached server-side.
 - For checking many addresses at once, use the browser-side [bulk checker](https://emaildomaincheck.com/bulk-email-checker) or download the [full list](https://emaildomaincheck.com/disposable-email-domains) (rebuilt daily, free for commercial use) instead of looping this endpoint.
 - About 76,800 domains tracked across the four lists, rebuilt daily.
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

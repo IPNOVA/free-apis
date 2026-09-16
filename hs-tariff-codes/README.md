@@ -94,11 +94,30 @@ print(f"{data['code']} {data['description']}: US general duty {data['us_hts'][0]
 
 ## Errors
 
-| Status | Meaning |
-|---|---|
-| `400` | `/api/search` called without a `q` parameter, or `q` is empty |
-| `404` | Code is not a resolvable HS6 subheading (fewer than 6 digits after stripping non-digits, or not in the dataset) |
-| `429` | Rate limit hit: 30/minute or 500/day per IP |
+| Status | `reason` | Meaning |
+|---|---|---|
+| `400` | `invalid_input` | `/api/search` called without a `q` parameter, or `q` is empty. |
+| `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
+| `404` | `not_found` | Code is not a resolvable HS6 subheading (fewer than 6 digits after stripping non-digits, or not in the dataset). |
+| `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
+
+Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
+
+```bash
+curl https://tariffcodecheck.com/api/hs/0000.00
+```
+
+```json
+{
+  "success": false,
+  "error": true,
+  "reason": "not_found",
+  "message": "Unknown HS code. Provide 6 digits: /api/hs/851713 (longer codes are truncated to their HS6 parent).",
+  "docs": "https://tariffcodecheck.com/hs-code-api"
+}
+```
 
 ## Notes
 
@@ -108,3 +127,4 @@ print(f"{data['code']} {data['description']}: US general duty {data['us_hts'][0]
 - The dataset is reference information from the official schedules, refreshed weekly. It is not a binding classification ruling; the legally binding classification is the one made by the customs authority of the importing country. Duty surcharges (for example US Section 301) may apply on top of the listed rates.
 - Keep the `attribution` field when you republish results.
 - Responses are cacheable for an hour (`Cache-Control: public, max-age=3600`).
+- Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.
