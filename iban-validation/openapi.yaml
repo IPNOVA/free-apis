@@ -1,0 +1,84 @@
+openapi: 3.1.0
+info:
+  title: IbanCodeCheck IBAN Validation API
+  version: "1.0"
+  description: >
+    Free IBAN validation. Checks the country code and length against the ISO
+    13616 registry and verifies the ISO 7064 mod-97 checksum, returning the
+    domestic bank code where the registry defines its position. No key
+    required. Algorithmic only: nothing is proxied, and IBANs are never
+    stored or logged.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://ibancodecheck.com/iban-api
+    email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://ibancodecheck.com/iban-api
+servers:
+  - url: https://ibancodecheck.com
+paths:
+  /api/iban/{iban}:
+    get:
+      summary: Validate an IBAN
+      operationId: validateIban
+      parameters:
+        - name: iban
+          in: path
+          required: true
+          description: >
+            An IBAN, with or without spaces or dashes. Normalized to 5 to 34
+            uppercase alphanumeric characters before validation.
+          schema:
+            type: string
+            pattern: "^[A-Za-z0-9]{2,34}$"
+            example: "DE89370400440532013000"
+      responses:
+        "200":
+          description: >
+            Validation result. Returned even for a structurally wrong IBAN,
+            with valid set to false and error explaining why.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      iban: { type: string, example: "DE89370400440532013000" }
+                      formatted: { type: string, example: "DE89 3704 0044 0532 0130 00" }
+                      valid: { type: boolean, example: true }
+                      country_code: { type: string, example: "DE" }
+                      country: { type: string, example: "Germany" }
+                      sepa: { type: boolean, example: true }
+                      length_ok: { type: boolean, example: true }
+                      checksum_ok: { type: boolean, example: true }
+                      check_digits: { type: string, example: "89" }
+                      bank_code: { type: string, example: "37040044" }
+                      error: { type: string, nullable: true, example: null }
+                  page: { type: string, format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+              example:
+                success: true
+                data:
+                  iban: "DE89370400440532013000"
+                  formatted: "DE89 3704 0044 0532 0130 00"
+                  valid: true
+                  country_code: "DE"
+                  country: "Germany"
+                  sepa: true
+                  length_ok: true
+                  checksum_ok: true
+                  check_digits: "89"
+                  bank_code: "37040044"
+                  error: null
+                page: "https://ibancodecheck.com/iban-format/DE"
+                attribution: "Validation by IbanCodeCheck.com - free IBAN checker API. IBANs are never stored or logged."
+                docs: "https://ibancodecheck.com/iban-api"
+        "400":
+          description: Input is not 5 to 34 characters once normalized
+        "429":
+          description: Rate limit exceeded (30/minute or 500/day per IP)

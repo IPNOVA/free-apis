@@ -2,24 +2,30 @@
 
 # IPNOVA Free APIs
 
-**Six production JSON APIs. No key. No registration. CORS enabled.**
+**Twelve production JSON APIs. No key. No registration. CORS enabled.**
 
-[ipnova.com](https://ipnova.com) · [Report an issue](https://github.com/IPNOVA/free-apis/issues) · [hello@ipnova.com](mailto:hello@ipnova.com)
+[ipnova.com](https://ipnova.com) · [api.ipnova.com](https://api.ipnova.com) · [Report an issue](https://github.com/IPNOVA/free-apis/issues) · [hello@ipnova.com](mailto:hello@ipnova.com)
 
 </div>
 
 ---
 
-Every API below runs on its own locally hosted dataset on our infrastructure. No request is proxied to a third party at lookup time, responses are cacheable, and nothing you look up is stored in any profile.
+Every API below runs on its own locally hosted dataset on our infrastructure. No request is proxied to a third party at lookup time (the one exception, a first-time VIN decode, is explained on that API's page), responses are cacheable, and nothing you look up is stored in any profile.
 
 | API | Endpoint | Docs | Data source |
 |---|---|---|---|
 | [BIN / IIN Lookup](./bin-lookup/) | `GET cardbincheck.com/api/bin/{bin}` | [live docs](https://cardbincheck.com/bin-lookup-api) | 343k+ BIN dataset |
 | [IP Intelligence](./ip-lookup/) | `GET ipsnapshot.com/api/ip/{ip}` | [live docs](https://ipsnapshot.com/ip-lookup-api) | DB-IP Lite (CC BY 4.0) + curated threat lists |
+| [SWIFT / BIC Lookup](./swift-codes/) | `GET swiftcodecheck.com/api/swift/{code}` | [live docs](https://swiftcodecheck.com/swift-code-api) | Open SWIFT/BIC dataset (MIT), 112k codes |
+| [IBAN Validation](./iban-validation/) | `GET ibancodecheck.com/api/iban/{iban}` | [live docs](https://ibancodecheck.com/iban-api) | Algorithmic, 78 national formats |
 | [Bank Holidays](./bank-holidays/) | `GET bankholidaycheck.com/api/holidays/{cc}/{year}` | [live docs](https://bankholidaycheck.com/holiday-api) | python-holidays (MIT), 246 countries |
 | [MAC Vendor Lookup](./mac-vendor/) | `GET macvendorcheck.com/api/mac/{mac}` | [live docs](https://macvendorcheck.com/mac-address-lookup-api) | IEEE MA-L / MA-M / MA-S registry |
 | [Postal Code Lookup](./postal-codes/) | `GET postalcodecheck.com/api/postal/{cc}/{code}` | [live docs](https://postalcodecheck.com/postal-code-api) | GeoNames (CC BY 4.0), 887k codes |
 | [Phone / Area Codes](./phone-area-codes/) | `GET areacodecheck.com/api/phone/{number}` | [live docs](https://areacodecheck.com/phone-api) | ITU / NANPA assignments, libphonenumber (Apache 2.0) |
+| [Airport Codes and Routes](./airport-codes/) | `GET airportcodecheck.com/api/airport/{code}` | [live docs](https://airportcodecheck.com/airport-api) | OurAirports (public domain), Wikipedia route tables (CC BY-SA) |
+| [HS / Tariff Codes](./hs-tariff-codes/) | `GET tariffcodecheck.com/api/hs/{code}` | [live docs](https://tariffcodecheck.com/hs-code-api) | US HTS (public domain), EU Combined Nomenclature (Eurostat), UK Tariff (OGL v3) |
+| [Disposable Email Domains](./disposable-email/) | `GET emaildomaincheck.com/api/email-domain/{domain}` | [live docs](https://emaildomaincheck.com/email-api) | Four open blocklists (CC0 / MIT), 76k domains |
+| [VIN Decoder](./vin-decoder/) | `GET vindecodercheck.com/api/vin/{vin}` | [live docs](https://vindecodercheck.com/vin-api) | NHTSA vPIC and recalls, EPA fuel economy (US public data) |
 
 ## Quickstart
 
@@ -29,6 +35,12 @@ curl https://cardbincheck.com/api/bin/440066
 
 # Where is this IP, and is it a VPN or datacenter?
 curl https://ipsnapshot.com/api/ip/8.8.8.8
+
+# Which bank and branch is behind this SWIFT code?
+curl https://swiftcodecheck.com/api/swift/DEUTDEFF
+
+# Is this IBAN well formed?
+curl https://ibancodecheck.com/api/iban/DE89370400440532013000
 
 # When is the next bank holiday in the UK?
 curl https://bankholidaycheck.com/api/holidays/next/GB
@@ -41,18 +53,30 @@ curl https://postalcodecheck.com/api/postal/US/90210
 
 # Which region is this phone number from?
 curl https://areacodecheck.com/api/phone/+14155552671
+
+# Which airport is LHR, and where does it fly direct?
+curl https://airportcodecheck.com/api/airport/LHR
+
+# What is HS code 8504.40, and what duty applies?
+curl https://tariffcodecheck.com/api/hs/850440
+
+# Is this email domain disposable?
+curl https://emaildomaincheck.com/api/email-domain/mailinator.com
+
+# What vehicle is this VIN?
+curl https://vindecodercheck.com/api/vin/1HGCM82633A004352
 ```
 
 Each directory in this repository contains the full endpoint reference, an OpenAPI 3.1 specification, and copy-paste examples for curl, JavaScript and Python.
 
 ## Fair use
 
-The same limits apply to every API:
+The same limits apply to every API unless its own page says otherwise:
 
-- **500 requests per day** and **30 per minute**, per IP.
+- **500 requests per day** and **30 per minute**, per IP. The VIN decoder allows 300 per day and 20 per minute because first-time decodes reach the NHTSA service. The MAC vendor lookup allows 1,000 per day.
 - Responses are cacheable (respect the `Cache-Control` headers and cache on your side where you can).
 - Free for personal and commercial use. Attribution is appreciated: a link to the API's website.
-- Need more volume? Write to **hello@ipnova.com**; we are happy to help genuine projects.
+- Need more volume, or a key for production use? The same APIs are available with higher limits at **[api.ipnova.com](https://api.ipnova.com)**. Genuine open-source and research projects can write to **hello@ipnova.com**.
 
 ## Reliability
 

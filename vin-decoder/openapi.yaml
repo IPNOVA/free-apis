@@ -1,0 +1,69 @@
+openapi: 3.1.0
+info:
+  title: VinDecoderCheck VIN Decoder API
+  version: "1.0"
+  description: >
+    Free VIN decoder. Decode a Vehicle Identification Number into make, model,
+    year, engine, plant and body facts, sourced from the NHTSA vPIC database
+    (US public domain), with a link to the site's specs and recalls page for
+    the exact model. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://vindecodercheck.com/vin-api
+    email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://vindecodercheck.com/vin-api
+servers:
+  - url: https://vindecodercheck.com
+paths:
+  /api/vin/{vin}:
+    get:
+      summary: Decode a Vehicle Identification Number
+      operationId: decodeVin
+      parameters:
+        - name: vin
+          in: path
+          required: true
+          description: >
+            11 to 17 characters, case-insensitive. VINs never contain the
+            letters I, O or Q.
+          schema:
+            type: string
+            pattern: "^[A-HJ-NPR-Za-hj-npr-z0-9]{11,17}$"
+            example: "1HGCM82633A004352"
+      responses:
+        "200":
+          description: VIN decoded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vin: { type: string, example: "1HGCM82633A004352" }
+                  make: { type: string, example: "HONDA" }
+                  model: { type: string, example: "Accord" }
+                  model_year: { type: string, example: "2003" }
+                  manufacturer: { type: string, example: "AMERICAN HONDA MOTOR CO., INC." }
+                  plant_city: { type: string, example: "MARYSVILLE" }
+                  plant_country: { type: string, example: "UNITED STATES (USA)" }
+                  vehicle_type: { type: string, example: "PASSENGER CAR" }
+                  body_class: { type: string, example: "Coupe" }
+                  engine_cylinders: { type: string, example: "6" }
+                  displacement_l: { type: string, example: "2.998832712" }
+                  fuel_type_primary: { type: string, example: "Gasoline" }
+                  transmission_style: { type: string, example: "Automatic" }
+                  doors: { type: string, example: "2" }
+                  g_v_w_r: { type: string, example: "Class 1C: 4,001 - 5,000 lb (1,814 - 2,268 kg)" }
+                  trim: { type: string, example: "EX-V6" }
+                  error_text: { type: string, example: "0 - VIN decoded clean. Check Digit (9th position) is correct" }
+                  specs_page: { type: string, format: uri, example: "https://vindecodercheck.com/car/2003-honda-accord" }
+                  recalls_on_record: { type: integer, example: 15 }
+                  source: { type: string, example: "NHTSA vPIC (US public domain)" }
+                  docs: { type: string, format: uri, example: "https://vindecodercheck.com/vin-api" }
+        "422":
+          description: VIN is not 11 to 17 characters, or contains I, O or Q
+        "429":
+          description: Rate limit exceeded (20/minute or 300/day per IP)
+        "502":
+          description: Upstream vPIC decoder unavailable, try again shortly

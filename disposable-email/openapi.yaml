@@ -1,0 +1,137 @@
+openapi: 3.1.0
+info:
+  title: EmailDomainCheck Disposable Email Domain API
+  version: "1.0"
+  description: >
+    Free disposable email domain check. Two-tier verdict (confirmed / reported /
+    no) against 4 community blocklists, plus a free-provider flag. Domain-only:
+    send the domain, never the address. No key required.
+  contact:
+    name: IPNOVA SYSTEMS LTD
+    url: https://emaildomaincheck.com/email-api
+    email: hello@ipnova.com
+  license:
+    name: Free to use, attribution appreciated
+    url: https://emaildomaincheck.com/email-api
+servers:
+  - url: https://emaildomaincheck.com
+components:
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: boolean
+          example: true
+        message:
+          type: string
+        upgrade:
+          type: string
+          format: uri
+          description: Present only on 429 responses
+          example: "https://api.ipnova.com/"
+paths:
+  /api/email-domain/{domain}:
+    get:
+      summary: Check a domain against the disposable and free-provider lists
+      operationId: checkEmailDomain
+      parameters:
+        - name: domain
+          in: path
+          required: true
+          description: >
+            A domain name, not a full address. If a full address is sent
+            anyway, only the part after @ is used and nothing is stored.
+            Matched case-insensitively.
+          schema:
+            type: string
+            pattern: "^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,24}$"
+            example: "mailinator.com"
+      responses:
+        "200":
+          description: Verdict for the domain
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  domain:
+                    type: string
+                    example: "mailinator.com"
+                  disposable:
+                    type: string
+                    enum: [confirmed, reported, no]
+                    description: >
+                      confirmed = vetted list or 2 or more sources agree,
+                      reported = a single list only (soft-verify, don't
+                      hard-block), no = not on any tracked list
+                    example: "confirmed"
+                  matched_domain:
+                    type: string
+                    nullable: true
+                    description: >
+                      The listed domain that matched, equal to the parent when
+                      a subdomain of a listed service is queried
+                    example: "mailinator.com"
+                  blocklists:
+                    type: array
+                    items:
+                      type: string
+                    description: Names of the community lists carrying the domain
+                    example: ["disposable-email-domains blocklist", "disposable/disposable daily aggregate", "FGRibreau/mailchecker"]
+                  blocklists_tracked:
+                    type: integer
+                    example: 4
+                  free_provider:
+                    type: boolean
+                    description: True for personal-mailbox providers like gmail.com
+                    example: false
+                  first_seen:
+                    type: string
+                    format: date
+                    nullable: true
+                    description: Date the domain entered the dataset; null for long-established entries
+                    example: null
+                  mx_active:
+                    type: boolean
+                    nullable: true
+                    description: Our own rolling DNS sample; null when not yet sampled
+                    example: null
+                  checked_at:
+                    type: string
+                    format: date-time
+                    example: "2026-09-16T05:58:20+00:00"
+                  docs:
+                    type: string
+                    format: uri
+                    example: "https://emaildomaincheck.com/email-api"
+        "400":
+          description: Missing domain in the request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: true
+                message: "Missing domain. Usage: GET /api/email-domain/{domain}"
+        "422":
+          description: Domain is not a syntactically valid hostname
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: true
+                message: "Not a valid domain."
+        "429":
+          description: >
+            Rate limit exceeded: 30 requests per minute or 500 requests per
+            day, per IP. An IPNOVA API key raises the limit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+              example:
+                error: true
+                message: "Rate limit exceeded: 30 requests per minute. For bulk needs use the downloadable list at https://emaildomaincheck.com/disposable-email-domains An IPNOVA API key raises the limit."
+                upgrade: "https://api.ipnova.com/"
