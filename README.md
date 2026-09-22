@@ -4,7 +4,7 @@
 
 **Twelve production JSON APIs. No key. No registration. CORS enabled.**
 
-[ipnova.com](https://ipnova.com) · [api.ipnova.com](https://api.ipnova.com) · [Report an issue](https://github.com/IPNOVA/free-apis/issues) · [hello@ipnova.com](mailto:hello@ipnova.com)
+[ipnova.com](https://ipnova.com) · [api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=readme&utm_campaign=free-apis) · [Report an issue](https://github.com/IPNOVA/free-apis/issues) · [hello@ipnova.com](mailto:hello@ipnova.com)
 
 </div>
 
@@ -76,7 +76,7 @@ The same limits apply to every API unless its own page says otherwise:
 - **500 requests per day** and **30 per minute**, per IP. The VIN decoder allows 300 per day and 20 per minute because first-time decodes reach the NHTSA service. The MAC vendor lookup allows 1,000 per day.
 - Responses are cacheable (respect the `Cache-Control` headers and cache on your side where you can).
 - Free for personal and commercial use. Attribution is appreciated: a link to the API's website.
-- Need more? A free account at **[api.ipnova.com](https://api.ipnova.com)** gives you one key for all twelve APIs with 30,000 lookups a month and 60 a minute, no card. Paid plans with higher limits are available today. Genuine open-source and research projects can write to **hello@ipnova.com**.
+- Need more? A free account at **[api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=readme&utm_campaign=free-apis)** gives you one key for all twelve APIs with 30,000 lookups a month and 60 a minute, no card. Paid plans with higher limits are available today. Genuine open-source and research projects can write to **hello@ipnova.com**.
 
 ## Errors and API keys
 
@@ -107,7 +107,7 @@ Every API answers the same way, so you learn the pattern once.
 | `429` | `credits_exhausted` | A keyed request whose monthly plan allowance is used up. |
 | `502` | `upstream_unavailable` | A source the API depends on did not answer. Retry with backoff. |
 
-**API keys are optional.** A free account at [api.ipnova.com](https://api.ipnova.com) gives you one key for all twelve APIs and a usage dashboard. Send it as the `X-Api-Key` header or the `?key=` query parameter and your plan allowance applies instead of the per-IP limits. Keyed `200` responses carry `X-Credits-Remaining` and `X-Credits-Used`; only `200` responses consume credits. If the key service cannot be reached, the call is served under the keyless limits with `X-Credits-Remaining: unavailable`, so a key never makes an integration less reliable than no key.
+**API keys are optional.** A free account at [api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=readme&utm_campaign=free-apis) gives you one key for all twelve APIs and a usage dashboard. Send it as the `X-Api-Key` header or the `?key=` query parameter and your plan allowance applies instead of the per-IP limits. Keyed `200` responses carry `X-Credits-Remaining` and `X-Credits-Used`; only `200` responses consume credits. If the key service cannot be reached, the call is served under the keyless limits with `X-Credits-Remaining: unavailable`, so a key never makes an integration less reliable than no key.
 
 ## Reliability
 

@@ -2,6 +2,14 @@
 
 Notable changes to the twelve APIs. Data refreshes run on schedule and are not listed here.
 
+## 2026-09-22
+
+**Paid plans are open on api.ipnova.com.**
+
+- Three plans, Developer, Pro and Business, with 100,000, 500,000 and 2,000,000 credits a month, monthly or yearly billing, VAT handled at checkout by Stripe. Hard caps: requests stop at the plan limit, there is no overage billing. Only `200` responses consume credits.
+- The free plan is unchanged: 30,000 credits a month and 60 requests a minute with a key, no card. Keyless access keeps working within the per-IP limits on every API.
+- Upgrade and billing are managed from the [account page](https://api.ipnova.com/?utm_source=github&utm_medium=changelog&utm_campaign=free-apis). Nothing changes in request or response formats.
+
 ## 2026-09-16
 
 **One error envelope on every API, and optional API keys.**
@@ -9,7 +17,7 @@ Notable changes to the twelve APIs. Data refreshes run on schedule and are not l
 - Every non-`200` response now has the same body on all twelve APIs: `success`, `error`, `reason`, `message`, `docs`, followed by any API-specific extra fields. The `reason` codes are listed in the root README under Errors and API keys.
 - Every `200` response now starts with `"success": true`. APIs that already returned it are unchanged; the others gained the field as the first key and kept every existing field in place.
 - Status codes were aligned: malformed input is `400` everywhere (the VIN decoder and disposable email APIs returned `422`), and a valid query with no record is `404` everywhere (the MAC vendor API returned `200` with `success: false` for unregistered prefixes).
-- API keys from [api.ipnova.com](https://api.ipnova.com) are accepted on every API as the `X-Api-Key` header or the `?key=` query parameter. Keyed responses carry `X-Credits-Remaining`, `X-Credits-Used` and `X-Plan`. Keyless access keeps working within the per-IP limits.
+- API keys from [api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=changelog&utm_campaign=free-apis) are accepted on every API as the `X-Api-Key` header or the `?key=` query parameter. Keyed responses carry `X-Credits-Remaining`, `X-Credits-Used` and `X-Plan`. Keyless access keeps working within the per-IP limits.
 - The `?key=` parameter is passed through on every `/api/...` route.
 - The free plan at api.ipnova.com is 30,000 credits a month and 60 requests a minute, double the keyless per-IP allowance, so a free key is always the better way to call the APIs.
 
