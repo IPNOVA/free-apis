@@ -80,7 +80,7 @@ paths:
                     properties:
                       bin: { type: string, example: "999999" }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP) or credits_exhausted (keyed monthly allowance used up)"
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
@@ -155,7 +155,7 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP, batch calls cost ceil(n/10)) or credits_exhausted"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP, batch calls cost ceil(n/10)) or credits_exhausted"
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }

@@ -178,12 +178,12 @@ paths:
                     message: "Rate limit exceeded: 30 requests per minute. For bulk needs use the downloadable list at https://emaildomaincheck.com/disposable-email-domains"
                     docs: "https://emaildomaincheck.com/email-api"
                 dailyLimit:
-                  summary: Keyless daily cap hit (500/day per IP)
+                  summary: Keyless daily cap hit (100/day per IP)
                   value:
                     success: false
                     error: true
                     reason: "daily_limit"
-                    message: "Daily limit reached (500/day per IP). The full list is freely downloadable at https://emaildomaincheck.com/disposable-email-domains"
+                    message: "Daily limit reached (100/day per IP). The full list is freely downloadable at https://emaildomaincheck.com/disposable-email-domains"
                     docs: "https://emaildomaincheck.com/email-api"
                 creditsExhausted:
                   summary: Keyed request out of monthly plan credits

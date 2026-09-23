@@ -114,7 +114,7 @@ paths:
           description: "not_found: country or year not in the dataset"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP) or credits_exhausted (keyed monthly allowance used up)"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   /api/holidays/next/{cc}:
     get:
@@ -156,7 +156,7 @@ paths:
           description: "not_found: no upcoming holiday data for the country"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP) or credits_exhausted (keyed monthly allowance used up)"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   /api/holidays/check/{cc}/{date}:
     get:
@@ -202,7 +202,7 @@ paths:
           description: "invalid_key: the API key is malformed, unknown, revoked or expired"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP) or credits_exhausted (keyed monthly allowance used up)"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
   /api/business-days/{cc}/{from}/{to}:
     get:
@@ -260,5 +260,5 @@ paths:
           description: "invalid_key: the API key is malformed, unknown, revoked or expired"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (500/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP) or credits_exhausted (keyed monthly allowance used up)"
           content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }

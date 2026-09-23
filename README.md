@@ -73,10 +73,10 @@ Each directory in this repository contains the full endpoint reference, an OpenA
 
 The same limits apply to every API unless its own page says otherwise:
 
-- **500 requests per day** and **30 per minute**, per IP. The VIN decoder allows 300 per day and 20 per minute because first-time decodes reach the NHTSA service. The MAC vendor lookup allows 1,000 per day.
+- **100 requests per day** and **30 per minute**, per IP, on every API. The VIN decoder keeps the same daily limit but allows 20 per minute because first-time decodes reach the NHTSA service.
 - Responses are cacheable (respect the `Cache-Control` headers and cache on your side where you can).
 - Free for personal and commercial use. Attribution is appreciated: a link to the API's website.
-- Need more? A free account at **[api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=readme&utm_campaign=free-apis)** gives you one key for all twelve APIs with 30,000 lookups a month and 60 a minute, no card. Paid plans with higher limits are available today. Genuine open-source and research projects can write to **hello@ipnova.com**.
+- Need more? A free account at **[api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=readme&utm_campaign=free-apis)** gives you one key for all twelve APIs with 5,000 lookups a month and 60 a minute, no card. Paid plans with higher limits are available today. Genuine open-source and research projects can write to **hello@ipnova.com**.
 
 ## Errors and API keys
 

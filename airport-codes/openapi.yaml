@@ -67,12 +67,12 @@ components:
                 message: "Rate limit exceeded: max 30 requests per minute."
                 docs: "https://airportcodecheck.com/airport-api"
             dailyLimit:
-              summary: Keyless daily cap hit (500/day per IP)
+              summary: Keyless daily cap hit (100/day per IP)
               value:
                 success: false
                 error: true
                 reason: "daily_limit"
-                message: "Daily limit reached (500 requests). Resets at midnight UTC."
+                message: "Daily limit reached (100 requests). Resets at midnight UTC."
                 docs: "https://airportcodecheck.com/airport-api"
             creditsExhausted:
               summary: Keyed request out of monthly plan credits

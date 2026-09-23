@@ -113,7 +113,7 @@ print(f"{data['scheme']} {data['funding']} card from {data['country_name']}")
 | `405` | `method_not_allowed` | `GET` on `/api/bin-batch`, or a non-`POST`/`GET` method on either endpoint |
 | `413` | `payload_too_large` | Batch request body over 64 KB |
 | `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
-| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `daily_limit` | Rate limit hit: 100/day per IP. Resets at midnight UTC. |
 | `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
 
 Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):

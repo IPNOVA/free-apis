@@ -79,7 +79,7 @@ else:
 | `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
 | `404` | `not_found` | Unknown airport code, on a lookup, a routes request, or either side of a connection. |
 | `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
-| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (100/day) is used up. Resets at midnight UTC. |
 | `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
 
 Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):

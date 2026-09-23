@@ -66,7 +66,7 @@ print(j["data"]["country"])
 | `400` | `invalid_input` | Fewer than 3 or more than 15 digits |
 | `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
 | `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
-| `429` | `daily_limit` | Rate limit hit: 500/day per IP. Resets at midnight UTC. |
+| `429` | `daily_limit` | Rate limit hit: 100/day per IP. Resets at midnight UTC. |
 | `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
 
 Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):

@@ -58,7 +58,7 @@ print(j["vendor"], j["registry"])
 | `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
 | `404` | `not_found` | No vendor registered for this MAC or OUI prefix |
 | `429` | `rate_limit` | Rate limit hit: 30/minute per IP. Back off for the seconds in `Retry-After`. |
-| `429` | `daily_limit` | Rate limit hit: 1,000/day per IP. Resets at midnight UTC. |
+| `429` | `daily_limit` | Rate limit hit: 100/day per IP. Resets at midnight UTC. |
 | `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
 
 Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):
@@ -83,6 +83,6 @@ curl -s http://127.0.0.1:8107/api/mac/020000
 - Separators and case are ignored; `00:1a:2b`, `00-1A-2B`, `001a.2b3c.4d5e` and `001A2B` are the same query.
 - Longer prefixes are matched most-specific-first (MA-S 36-bit, then MA-M 28-bit, then MA-L 24-bit), matching how the IEEE allocates blocks.
 - An unregistered prefix answers `404` (`not_found`), keeping the `mac` field in the error body so you can see what was parsed, for example `curl https://macvendorcheck.com/api/mac/020000` above. Randomized/private MAC addresses (second hex digit 2, 6, A or E) are intentionally unregistered and come back this way.
-- This API allows 1,000 requests a day, higher than the 500/day default on the other APIs in this repository.
+- This API allows 100 requests a day per IP, the same keyless limit as every other API in this repository.
 - No `Cache-Control` header is sent (`cf-cache-status: DYNAMIC`); treat responses as uncached and poll only as often as you need to.
 - Optional API key: send `X-Api-Key` or `?key=` from a free api.ipnova.com account and your plan allowance applies instead of the per-IP limits; keyed responses carry `X-Credits-Remaining` and `X-Credits-Used`.

@@ -74,7 +74,7 @@ paths:
                     properties:
                       mac: { type: string, example: "02:00:00" }
         "429":
-          description: "rate_limit (30/minute per IP), daily_limit (1,000/day per IP) or credits_exhausted (keyed monthly allowance used up)"
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP) or credits_exhausted (keyed monthly allowance used up)"
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }

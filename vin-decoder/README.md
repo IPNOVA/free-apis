@@ -71,7 +71,7 @@ print(f"{car['model_year']} {car['make']} {car['model']}")
 | `400` | `invalid_input` | VIN is not 11 to 17 characters, or contains I, O or Q. |
 | `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
 | `429` | `rate_limit` | Too many requests: 20/minute per IP. Back off for the seconds in `Retry-After`. |
-| `429` | `daily_limit` | The keyless per-IP daily allowance (300/day) is used up. Resets at midnight UTC. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (100/day) is used up. Resets at midnight UTC. |
 | `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
 | `502` | `upstream_unavailable` | Upstream vPIC decoder unavailable (only on an uncached VIN's first decode). Retry with backoff. |
 
@@ -94,7 +94,7 @@ curl https://vindecodercheck.com/api/vin/SHORTVINXXXX
 ## Notes
 
 - Each VIN is decoded against NHTSA vPIC upstream once, ever. After that first decode it serves from our permanent cache, so repeated integration calls are fast and place no further load on the government source.
-- This API's limits are lower than IPNOVA's other free APIs (20/minute, 300/day) because a VIN that has never been seen before still calls NHTSA vPIC live at request time; the cap protects that upstream government service from uncached traffic.
+- The per-minute limit is lower than IPNOVA's other free APIs (20/minute, same 100/day) because a VIN that has never been seen before still calls NHTSA vPIC live at request time; the cap protects that upstream government service from uncached traffic.
 - Responses are sent with `Cache-Control: no-store`. VINs are never logged. Fields the decode does not return (a "Not Applicable" upstream value) are omitted, never invented.
 - Data sources: NHTSA vPIC (US public domain) for the decode itself. The linked `specs_page`, when present, adds EPA fueleconomy.gov figures and the NHTSA recalls database (both US public domain), refreshed monthly.
 - Build facts only: no ownership, title or accident data, ever.

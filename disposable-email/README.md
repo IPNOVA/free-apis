@@ -61,7 +61,7 @@ if j["disposable"] == "confirmed":
 | `400` | `invalid_input` | Missing domain in the request, or the domain is not a syntactically valid hostname. |
 | `401` | `invalid_key` | The API key sent is malformed, unknown, revoked or expired. Keyless calls are never `401`. |
 | `429` | `rate_limit` | Too many requests: 30/minute per IP. Back off for the seconds in `Retry-After`. |
-| `429` | `daily_limit` | The keyless per-IP daily allowance (500/day) is used up. Resets at midnight UTC. |
+| `429` | `daily_limit` | The keyless per-IP daily allowance (100/day) is used up. Resets at midnight UTC. |
 | `429` | `credits_exhausted` | Keyed request whose monthly plan allowance is used up. |
 
 Every error uses the shared envelope described in the [repository README](../README.md#errors-and-api-keys):

@@ -2,6 +2,14 @@
 
 Notable changes to the twelve APIs. Data refreshes run on schedule and are not listed here.
 
+## 2026-09-23
+
+**Free key allowance and keyless limits rebalanced.**
+
+- The free plan at [api.ipnova.com](https://api.ipnova.com/?utm_source=github&utm_medium=changelog&utm_campaign=free-apis) is now 5,000 credits a month with a key, no card. The 60 requests a minute limit is unchanged.
+- Keyless access (no key) is now 100 requests a day per IP on every API, no exceptions. Per-minute limits are unchanged: 30 a minute on most APIs, 20 a minute on the VIN decoder.
+- Paid plans (Developer, Pro, Business) are unchanged. The free key is meant for evaluation and small projects, the paid plans are for production volumes, and a free key still beats keyless access on every API.
+
 ## 2026-09-22
 
 **Paid plans are open on api.ipnova.com.**

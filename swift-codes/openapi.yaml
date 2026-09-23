@@ -144,12 +144,12 @@ paths:
                     message: "Too many requests. Please slow down and try again in a minute."
                     docs: "https://swiftcodecheck.com/swift-code-api"
                 dailyLimit:
-                  summary: Keyless daily cap hit (500/day per IP)
+                  summary: Keyless daily cap hit (100/day per IP)
                   value:
                     success: false
                     error: true
                     reason: "daily_limit"
-                    message: "Daily API limit reached (500 requests/day per IP). Resets at midnight UTC."
+                    message: "Daily API limit reached (100 requests/day per IP). Resets at midnight UTC."
                     docs: "https://swiftcodecheck.com/swift-code-api"
                 creditsExhausted:
                   summary: Keyed request out of monthly plan credits
