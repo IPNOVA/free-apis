@@ -1,6 +1,6 @@
 # Bank Holidays API
 
-Bank and public holiday calendars for 150+ countries, four years of data (previous year through two years ahead), refreshed annually. Four endpoints: a full year calendar, the next upcoming holiday, a specific-date check with a banks-closed verdict, and a business-days calculator between two dates. Holiday names are available in eight languages.
+Bank and public holiday calendars for 246 countries and territories, four years of data (previous year through two years ahead), refreshed annually. Four endpoints: a full year calendar, the next upcoming holiday, a specific-date check with a banks-closed verdict, and a business-days calculator between two dates. Holiday names are available in eight languages.
 
 **Base URL** `https://bankholidaycheck.com` · **Live docs** [bankholidaycheck.com/holiday-api](https://bankholidaycheck.com/holiday-api) · [OpenAPI spec](./openapi.yaml)
 

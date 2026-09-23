@@ -18,7 +18,7 @@ Every API below runs on its own locally hosted dataset on our infrastructure. No
 | [IP Intelligence](./ip-lookup/) | `GET ipsnapshot.com/api/ip/{ip}` | [live docs](https://ipsnapshot.com/ip-lookup-api) | DB-IP Lite (CC BY 4.0) + curated threat lists |
 | [SWIFT / BIC Lookup](./swift-codes/) | `GET swiftcodecheck.com/api/swift/{code}` | [live docs](https://swiftcodecheck.com/swift-code-api) | Open SWIFT/BIC dataset (MIT), 112k codes |
 | [IBAN Validation](./iban-validation/) | `GET ibancodecheck.com/api/iban/{iban}` | [live docs](https://ibancodecheck.com/iban-api) | Algorithmic, 78 national formats |
-| [Bank Holidays](./bank-holidays/) | `GET bankholidaycheck.com/api/holidays/{cc}/{year}` and 3 more | [live docs](https://bankholidaycheck.com/holiday-api) | python-holidays (MIT), 150+ countries |
+| [Bank Holidays](./bank-holidays/) | `GET bankholidaycheck.com/api/holidays/{cc}/{year}` and 3 more | [live docs](https://bankholidaycheck.com/holiday-api) | python-holidays (MIT), 246 countries and territories |
 | [MAC Vendor Lookup](./mac-vendor/) | `GET macvendorcheck.com/api/mac/{mac}` | [live docs](https://macvendorcheck.com/mac-address-lookup-api) | IEEE MA-L / MA-M / MA-S registry |
 | [Postal Code Lookup](./postal-codes/) | `GET postalcodecheck.com/api/postal/{cc}/{code}` and 1 more | [live docs](https://postalcodecheck.com/postal-code-api) | GeoNames (CC BY 4.0), 887k codes |
 | [Phone / Area Codes](./phone-area-codes/) | `GET areacodecheck.com/api/phone/{number}` | [live docs](https://areacodecheck.com/phone-api) | ITU / NANPA assignments, libphonenumber (Apache 2.0) |

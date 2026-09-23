@@ -3,7 +3,7 @@ info:
   title: BankHolidayCheck Holidays API
   version: "1.0"
   description: >
-    Free bank and public holiday API for 150+ countries: year calendars, the
+    Free bank and public holiday API for 246 countries and territories: year calendars, the
     next upcoming holiday, per-date checks with a banks-closed verdict, and a
     business-days calculator. Names available in en, es, fr, de, pt, it, nl,
     pl. No key required.
