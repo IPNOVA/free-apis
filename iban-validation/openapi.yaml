@@ -173,3 +173,80 @@ paths:
                     reason: "credits_exhausted"
                     message: "Monthly credit allowance used up. Credits reset on the first of next month."
                     docs: "https://ibancodecheck.com/iban-api"
+  /api/iban-batch:
+    post:
+      summary: Validate up to 100 IBANs in one call
+      description: "One credit per ten IBANs, rounded up, counted against the per-IP daily limit the same way. IBANs are normalised and de-duplicated. A structurally wrong IBAN is a row with valid false and error set. The body is validated and discarded; nothing is stored or logged. Responses are sent with Cache-Control no-store."
+      operationId: validateIbanBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ibans]
+              properties:
+                ibans:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: { type: string }
+                  example: ["DE89370400440532013000", "GB82WEST12345698765432"]
+      responses:
+        "200":
+          description: Batch results, one entry per distinct IBAN
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  count: { type: integer, example: 2 }
+                  valid: { type: integer, example: 2 }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        iban: { type: string, example: "DE89370400440532013000" }
+                        formatted: { type: string, example: "DE89 3704 0044 0532 0130 00" }
+                        valid: { type: boolean, example: true }
+                        country_code: { type: string, example: "DE" }
+                        country: { type: string, example: "Germany" }
+                        sepa: { type: boolean, example: true }
+                        length_ok: { type: boolean, example: true }
+                        checksum_ok: { type: boolean, example: true }
+                        check_digits: { type: string, example: "89" }
+                        bank_code: { type: string, example: "37040044" }
+                        error: { type: [string, "null"], example: null }
+                        page: { type: [string, "null"], format: uri }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400":
+          description: "invalid_input: ibans missing, empty, not an array, or over 100 items"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "405":
+          description: "method_not_allowed: method is not POST"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "413":
+          description: "payload_too_large: request body over 64 KB"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429":
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP, batch calls cost ceil(n/10)) or credits_exhausted"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }

@@ -1,0 +1,709 @@
+{
+  "info": {
+    "name": "IPNOVA Free APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Twelve production JSON APIs from IPNOVA SYSTEMS LTD: BIN, IP, SWIFT, IBAN, bank holidays, MAC vendor, postal codes, phone codes, airports, HS tariff codes, disposable email and VIN. They work without a key under per-IP limits (100 requests a day and 30 a minute). Add a free key from https://api.ipnova.com as IPNOVA_API_KEY to use your plan allowance across all twelve. Overview: https://github.com/IPNOVA/free-apis"
+  },
+  "auth": {
+    "type": "apikey",
+    "apikey": [
+      {
+        "key": "key",
+        "value": "X-API-Key",
+        "type": "string"
+      },
+      {
+        "key": "value",
+        "value": "{{IPNOVA_API_KEY}}",
+        "type": "string"
+      },
+      {
+        "key": "in",
+        "value": "header",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+          "pm.test('Body is JSON', function () { pm.expect(pm.response.json()).to.be.an('object'); });"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl_cardbincheck",
+      "value": "https://cardbincheck.com"
+    },
+    {
+      "key": "baseUrl_ipsnapshot",
+      "value": "https://ipsnapshot.com"
+    },
+    {
+      "key": "baseUrl_swiftcodecheck",
+      "value": "https://swiftcodecheck.com"
+    },
+    {
+      "key": "baseUrl_ibancodecheck",
+      "value": "https://ibancodecheck.com"
+    },
+    {
+      "key": "baseUrl_bankholidaycheck",
+      "value": "https://bankholidaycheck.com"
+    },
+    {
+      "key": "baseUrl_macvendorcheck",
+      "value": "https://macvendorcheck.com"
+    },
+    {
+      "key": "baseUrl_postalcodecheck",
+      "value": "https://postalcodecheck.com"
+    },
+    {
+      "key": "baseUrl_areacodecheck",
+      "value": "https://areacodecheck.com"
+    },
+    {
+      "key": "baseUrl_airportcodecheck",
+      "value": "https://airportcodecheck.com"
+    },
+    {
+      "key": "baseUrl_tariffcodecheck",
+      "value": "https://tariffcodecheck.com"
+    },
+    {
+      "key": "baseUrl_emaildomaincheck",
+      "value": "https://emaildomaincheck.com"
+    },
+    {
+      "key": "baseUrl_vindecodercheck",
+      "value": "https://vindecodercheck.com"
+    }
+  ],
+  "item": [
+    {
+      "name": "BIN / IIN Lookup",
+      "description": "Card scheme, funding type, issuer and country from the first 6 to 8 digits of a card number, from a local 343k+ BIN dataset. Docs: https://cardbincheck.com/bin-lookup-api",
+      "item": [
+        {
+          "name": "Look up a BIN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_cardbincheck}}/api/bin/440066",
+              "host": [
+                "{{baseUrl_cardbincheck}}"
+              ],
+              "path": [
+                "api",
+                "bin",
+                "440066"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batch BIN lookup (up to 100)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl_cardbincheck}}/api/bin-batch",
+              "host": [
+                "{{baseUrl_cardbincheck}}"
+              ],
+              "path": [
+                "api",
+                "bin-batch"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bins\": [\n    \"440066\",\n    \"424242\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "IP Intelligence",
+      "description": "Geolocation, ASN and VPN or datacenter flags for an IP address, from DB-IP Lite (CC BY 4.0) and curated threat lists. Docs: https://ipsnapshot.com/ip-lookup-api",
+      "item": [
+        {
+          "name": "Look up an IP address",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_ipsnapshot}}/api/ip/8.8.8.8",
+              "host": [
+                "{{baseUrl_ipsnapshot}}"
+              ],
+              "path": [
+                "api",
+                "ip",
+                "8.8.8.8"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "SWIFT / BIC Lookup",
+      "description": "Bank and branch details behind a SWIFT/BIC code, from an open SWIFT/BIC dataset (MIT) of 112k codes. Docs: https://swiftcodecheck.com/swift-code-api",
+      "item": [
+        {
+          "name": "Look up a SWIFT code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_swiftcodecheck}}/api/swift/DEUTDEFF",
+              "host": [
+                "{{baseUrl_swiftcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "swift",
+                "DEUTDEFF"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batch SWIFT lookup (up to 100)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl_swiftcodecheck}}/api/swift-batch",
+              "host": [
+                "{{baseUrl_swiftcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "swift-batch"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codes\": [\n    \"DEUTDEFF\",\n    \"BNPAFRPP\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "IBAN Validation",
+      "description": "Algorithmic IBAN validation and parsing across 78 national formats. Docs: https://ibancodecheck.com/iban-api",
+      "item": [
+        {
+          "name": "Validate an IBAN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_ibancodecheck}}/api/iban/DE89370400440532013000",
+              "host": [
+                "{{baseUrl_ibancodecheck}}"
+              ],
+              "path": [
+                "api",
+                "iban",
+                "DE89370400440532013000"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batch IBAN validation (up to 100)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl_ibancodecheck}}/api/iban-batch",
+              "host": [
+                "{{baseUrl_ibancodecheck}}"
+              ],
+              "path": [
+                "api",
+                "iban-batch"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ibans\": [\n    \"DE89370400440532013000\",\n    \"GB82WEST12345698765432\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bank Holidays",
+      "description": "Public holidays, next holiday, date checks and business-day counts for 246 countries and territories, from python-holidays (MIT). Docs: https://bankholidaycheck.com/holiday-api",
+      "item": [
+        {
+          "name": "Holidays for a country and year",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_bankholidaycheck}}/api/holidays/GB/2026",
+              "host": [
+                "{{baseUrl_bankholidaycheck}}"
+              ],
+              "path": [
+                "api",
+                "holidays",
+                "GB",
+                "2026"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "en",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Next holiday in a country",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_bankholidaycheck}}/api/holidays/next/GB",
+              "host": [
+                "{{baseUrl_bankholidaycheck}}"
+              ],
+              "path": [
+                "api",
+                "holidays",
+                "next",
+                "GB"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "en",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Is a date a holiday",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_bankholidaycheck}}/api/holidays/check/GB/2026-12-25",
+              "host": [
+                "{{baseUrl_bankholidaycheck}}"
+              ],
+              "path": [
+                "api",
+                "holidays",
+                "check",
+                "GB",
+                "2026-12-25"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "en",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Business days between two dates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_bankholidaycheck}}/api/business-days/GB/2026-01-01/2026-03-31",
+              "host": [
+                "{{baseUrl_bankholidaycheck}}"
+              ],
+              "path": [
+                "api",
+                "business-days",
+                "GB",
+                "2026-01-01",
+                "2026-03-31"
+              ],
+              "query": [
+                {
+                  "key": "lang",
+                  "value": "en",
+                  "disabled": true
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "MAC Vendor Lookup",
+      "description": "Manufacturer of a network device from its MAC address, from the IEEE MA-L, MA-M and MA-S registries. Docs: https://macvendorcheck.com/mac-address-lookup-api",
+      "item": [
+        {
+          "name": "Look up a MAC address",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_macvendorcheck}}/api/mac/44:38:39:ff:ef:57",
+              "host": [
+                "{{baseUrl_macvendorcheck}}"
+              ],
+              "path": [
+                "api",
+                "mac",
+                "44:38:39:ff:ef:57"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Postal Code Lookup",
+      "description": "Place, region and coordinates for a postal code, from GeoNames (CC BY 4.0), 887k codes. Docs: https://postalcodecheck.com/postal-code-api",
+      "item": [
+        {
+          "name": "Look up a postal code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_postalcodecheck}}/api/postal/US/90210",
+              "host": [
+                "{{baseUrl_postalcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "postal",
+                "US",
+                "90210"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List supported countries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_postalcodecheck}}/api/countries",
+              "host": [
+                "{{baseUrl_postalcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "countries"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phone / Area Codes",
+      "description": "Region, line type and format of a phone number, from ITU and NANPA assignments and libphonenumber (Apache 2.0). Docs: https://areacodecheck.com/phone-api",
+      "item": [
+        {
+          "name": "Look up a phone number",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_areacodecheck}}/api/phone/+14155552671",
+              "host": [
+                "{{baseUrl_areacodecheck}}"
+              ],
+              "path": [
+                "api",
+                "phone",
+                "+14155552671"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Airport Codes and Routes",
+      "description": "Airport details, direct routes, connections and search, from OurAirports (public domain) and Wikipedia route tables (CC BY-SA). Docs: https://airportcodecheck.com/airport-api",
+      "item": [
+        {
+          "name": "Look up an airport",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_airportcodecheck}}/api/airport/LHR",
+              "host": [
+                "{{baseUrl_airportcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "airport",
+                "LHR"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Direct routes from an airport",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_airportcodecheck}}/api/routes/FNC",
+              "host": [
+                "{{baseUrl_airportcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "routes",
+                "FNC"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Connections between two airports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_airportcodecheck}}/api/connections/FNC/JFK",
+              "host": [
+                "{{baseUrl_airportcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "connections",
+                "FNC",
+                "JFK"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search airports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_airportcodecheck}}/api/search?q=funchal",
+              "host": [
+                "{{baseUrl_airportcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "funchal"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List supported countries",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_airportcodecheck}}/api/countries",
+              "host": [
+                "{{baseUrl_airportcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "countries"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "HS / Tariff Codes",
+      "description": "Harmonised System code descriptions and duty data, from the US HTS (public domain), EU Combined Nomenclature (Eurostat) and UK Tariff (OGL v3). Docs: https://tariffcodecheck.com/hs-code-api",
+      "item": [
+        {
+          "name": "Look up an HS code",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_tariffcodecheck}}/api/hs/850440",
+              "host": [
+                "{{baseUrl_tariffcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "hs",
+                "850440"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search HS codes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_tariffcodecheck}}/api/search?q=laptop",
+              "host": [
+                "{{baseUrl_tariffcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "laptop"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Batch HS lookup (up to 100)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl_tariffcodecheck}}/api/hs-batch",
+              "host": [
+                "{{baseUrl_tariffcodecheck}}"
+              ],
+              "path": [
+                "api",
+                "hs-batch"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"codes\": [\n    \"851713\",\n    \"8471.30\",\n    \"12\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Disposable Email Domains",
+      "description": "Whether an email domain is disposable, from four open blocklists (CC0 / MIT) covering 76k domains. Docs: https://emaildomaincheck.com/email-api",
+      "item": [
+        {
+          "name": "Check an email domain",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_emaildomaincheck}}/api/email-domain/mailinator.com",
+              "host": [
+                "{{baseUrl_emaildomaincheck}}"
+              ],
+              "path": [
+                "api",
+                "email-domain",
+                "mailinator.com"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "VIN Decoder",
+      "description": "Vehicle make, model and year from a VIN, plus recalls and fuel economy, from NHTSA vPIC and recalls and EPA data (US public data). Docs: https://vindecodercheck.com/vin-api",
+      "item": [
+        {
+          "name": "Decode a VIN",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl_vindecodercheck}}/api/vin/1HGCM82633A004352",
+              "host": [
+                "{{baseUrl_vindecodercheck}}"
+              ],
+              "path": [
+                "api",
+                "vin",
+                "1HGCM82633A004352"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

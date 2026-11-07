@@ -67,7 +67,7 @@ curl https://emaildomaincheck.com/api/email-domain/mailinator.com
 curl https://vindecodercheck.com/api/vin/1HGCM82633A004352
 ```
 
-Each directory in this repository contains the full endpoint reference, an OpenAPI 3.1 specification, and copy-paste examples for curl, JavaScript and Python.
+Each directory in this repository contains the full endpoint reference, an OpenAPI 3.1 specification, and copy-paste examples for curl, JavaScript and Python. The [postman](./postman/) folder holds a ready-made Postman collection with all 25 requests and an environment file for the optional key.
 
 ## Fair use
 

@@ -2,6 +2,15 @@
 
 Notable changes to the twelve APIs. Data refreshes run on schedule and are not listed here.
 
+## 2026-11-07
+
+**Batch endpoints for SWIFT, IBAN and HS codes, and a Postman collection.**
+
+- Three new `POST` endpoints, the same shape as `/api/bin-batch`: [`/api/swift-batch`](swift-codes/README.md#batch) on swiftcodecheck.com (body `{"codes": [...]}`), [`/api/iban-batch`](iban-validation/README.md#batch) on ibancodecheck.com (body `{"ibans": [...]}`) and [`/api/hs-batch`](hs-tariff-codes/README.md#batch) on tariffcodecheck.com (body `{"codes": [...]}`).
+- Each takes 1 to 100 items per call and costs one credit per ten items, rounded up. The same amount counts against the per-IP daily limit on keyless calls. The request body is capped at 64 KB (`413`), `GET` answers `405` and an invalid body answers `400`. Responses are `application/json` with `Cache-Control: no-store`.
+- Malformed items do not fail the call: they come back as rows flagged in the results. The `openapi.yaml` in each folder documents the new path.
+- The [`postman/`](postman/) folder was added the same day, with a Postman collection and environment for the APIs.
+
 ## 2026-09-23
 
 **Free key allowance and keyless limits rebalanced.**

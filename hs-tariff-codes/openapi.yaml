@@ -90,7 +90,7 @@ components:
         error: { type: boolean, example: true }
         reason:
           type: string
-          enum: [invalid_input, invalid_key, not_found, rate_limit, daily_limit, credits_exhausted]
+          enum: [invalid_input, invalid_key, not_found, method_not_allowed, payload_too_large, rate_limit, daily_limit, credits_exhausted]
         message: { type: string }
         docs: { type: string, format: uri }
 paths:
@@ -239,3 +239,81 @@ paths:
           $ref: "#/components/responses/InvalidKey"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/hs-batch:
+    post:
+      summary: Check up to 100 HS codes in one call
+      description: "Each code is resolved to its HS6 parent; dots and spaces are ignored. One credit per ten codes, rounded up, counted against the per-IP daily limit the same way. Codes are not de-duplicated. Responses are sent with Cache-Control no-store."
+      operationId: lookupHsBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [codes]
+              properties:
+                codes:
+                  type: array
+                  minItems: 1
+                  maxItems: 100
+                  items: { type: string }
+                  example: ["851713", "8471.30"]
+      responses:
+        "200":
+          description: Batch results, one row per submitted code
+          headers:
+            X-Credits-Remaining: { $ref: "#/components/headers/XCreditsRemaining" }
+            X-Credits-Used: { $ref: "#/components/headers/XCreditsUsed" }
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  count: { type: integer, example: 2 }
+                  found: { type: integer, example: 2 }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        input: { type: string, example: "8471.30" }
+                        found: { type: boolean }
+                        error: { type: string, example: "invalid format", description: "Present instead of the lookup fields when the code cannot be resolved" }
+                        hs6: { type: string, example: "847130" }
+                        code: { type: string, example: "8471.30" }
+                        description: { type: string }
+                        chapter:
+                          type: object
+                          properties:
+                            number: { type: string, example: "84" }
+                            title: { type: string }
+                        page: { type: string, format: uri }
+                  disclaimer: { type: string }
+                  attribution: { type: string }
+                  docs: { type: string, format: uri }
+        "400":
+          description: "invalid_input: codes missing, empty, not an array, or over 100 items"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401":
+          description: "invalid_key: the API key is malformed, unknown, revoked or expired"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "405":
+          description: "method_not_allowed: method is not POST"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "413":
+          description: "payload_too_large: request body over 64 KB"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "429":
+          description: "rate_limit (30/minute per IP), daily_limit (100/day per IP, batch calls cost ceil(n/10)) or credits_exhausted"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
